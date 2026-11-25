@@ -28,31 +28,15 @@ jobs:
           test -s dist/Simulador-Orbital-SO/index.html
           ! grep -q 'cdn.jsdelivr.net' dist/Simulador-Orbital-SO/index.html
           python3 - <<'PY'
-          from html.parser import HTMLParser
           from pathlib import Path
-          class ScriptParser(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.inside = False
-                  self.scripts = []
-                  self.current = ""
-              def handle_starttag(self, tag, attrs):
-                  if tag == "script":
-                      self.inside = True
-                      self.current = ""
-              def handle_data(self, data):
-                  if self.inside:
-                      self.current += data
-              def handle_endtag(self, tag):
-                  if tag == "script" and self.inside:
-                      self.scripts.append(self.current)
-                      self.inside = False
           html = Path("dist/Simulador-Orbital-SO/index.html").read_text()
-          parser = ScriptParser()
-          parser.feed(html)
-          assert len(parser.scripts) == 1, f"Se esperaba un solo script autocontenido, hay {len(parser.scripts)}"
           assert html.count("</script>") == 1, "Hay un cierre de script inesperado dentro del bundle"
-          Path("/tmp/so-bundle-check.js").write_text(parser.scripts[0])
+          start = html.find("<script>")
+          end = html.rfind("</script>")
+          assert start >= 0 and end > start, "No se encontró el módulo autocontenido"
+          script = html[start + len("<script>"):end]
+          Path("/tmp/so-bundle-check.js").write_text(script)
+          print("HTML válido: un único cierre de script.")
           print("HTML válido: un único script autocontenido.")
           PY
           node --check /tmp/so-bundle-check.js
