@@ -72,7 +72,7 @@ const mount=document.querySelector('#scene');
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x030711);
 const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.01,20000);camera.position.set(0,34,68);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.toneMapping=THREE.ACESFilmicToneMapping;mount.appendChild(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=3;controls.maxDistance=9000;
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=.15;controls.maxDistance=9000;controls.zoomToCursor=true;
 scene.add(new THREE.AmbientLight(0x8ba8d0,.65));const sunLight=new THREE.PointLight(0xffffff,2400,0,2);scene.add(sunLight);
 // Campo estelar completo en 3D: estrellas repartidas por toda la esfera celeste.
 const starGeo=new THREE.BufferGeometry(),starPos=[],starCols=[];
@@ -160,7 +160,22 @@ const halo=new THREE.Mesh(new THREE.SphereGeometry(280,32,20),new THREE.MeshBasi
 const sunMarker=new THREE.Mesh(new THREE.SphereGeometry(2.1,24,16),new THREE.MeshBasicMaterial({color:0xffe28a}));sunMarker.position.set(-115,0,35);galaxyGroup.add(sunMarker);
 galaxyGroup.visible=false;
 let elapsed=0,paused=false,mode='solar',selected=-1,last=performance.now();const speed=document.querySelector('#speed');function speedValue(){return Math.pow(10,Number(speed.value))}function updateSpeedLabel(){const v=speedValue();document.querySelector('#speedLabel').textContent=(v>=1?v.toFixed(v<10?1:0):v.toFixed(3))+' días/s'}speed.addEventListener('input',updateSpeedLabel);updateSpeedLabel();
-function focusPlanet(i){selected=i;const o=planetObjects[i];if(mode!=='solar')setMode('solar');const target=o.mesh.getWorldPosition(new THREE.Vector3());controls.target.copy(target);const dist=Math.max(5,o.d[3]*8);camera.position.copy(target).add(new THREE.Vector3(dist,dist*.65,dist*1.6));document.querySelector('#info').innerHTML='<b style="color:#fff;font-size:14px">'+o.d[0]+'</b><br>'+o.d[5]+'<br>Distancia media al Sol: '+o.d[1]+' UA<br>Periodo orbital: '+o.d[2].toLocaleString('es-ES')+' días<br>Lunas conocidas (aprox.): '+o.d[6]+'<br><span class="muted">'+o.d[7]+'</span>'}
+function focusPlanet(i){selected=i;const o=planetObjects[i];if(mode!=='solar')setMode('solar');const target=o.mesh.getWorldPosition(new THREE.Vector3());controls.target.copy(target);const dist=Math.max(o.d[3]*5,.8);const viewOffset=new THREE.Vector3(dist,dist*.55,dist*1.45);camera.position.copy(target).add(viewOffset);camera.near=Math.max(.001,dist/1000);camera.far=20000;camera.updateProjectionMatrix();controls.update();document.querySelector('#info').innerHTML='<b style="color:#fff;font-size:14px">'+o.d[0]+'</b><br>'+o.d[5]+'<br>Distancia media al Sol: '+o.d[1]+' UA<br>Periodo orbital: '+o.d[2].toLocaleString('es-ES')+' días<br>Lunas conocidas (aprox.): '+o.d[6]+'<br><span class="muted">'+o.d[7]+'</span>'}
+
+// Selección directa de planetas con el ratón/táctil: al pulsar sobre un planeta, la cámara cambia su objetivo.
+const raycaster=new THREE.Raycaster();raycaster.params.Mesh.threshold=.1;
+const pointer=new THREE.Vector2();let pointerDown=null;
+renderer.domElement.addEventListener('pointerdown',e=>{pointerDown={x:e.clientX,y:e.clientY,id:e.pointerId}});
+renderer.domElement.addEventListener('pointerup',e=>{
+ if(!pointerDown||pointerDown.id!==e.pointerId)return;
+ const moved=Math.hypot(e.clientX-pointerDown.x,e.clientY-pointerDown.y);pointerDown=null;
+ if(moved>7||mode!=='solar')return;
+ const rect=renderer.domElement.getBoundingClientRect();
+ pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+ raycaster.setFromCamera(pointer,camera);
+ const hits=raycaster.intersectObjects(planetObjects.map(o=>o.mesh),false);
+ if(hits.length){const idx=planetObjects.findIndex(o=>o.mesh===hits[0].object);if(idx>=0)focusPlanet(idx);}
+});
 function setMode(m){mode=m;const gal=m==='galaxy';solarGroup.visible=!gal;galaxyGroup.visible=gal;document.querySelector('#solarBtn').classList.toggle('active',!gal);document.querySelector('#galaxyBtn').classList.toggle('active',gal);document.querySelector('#mode').textContent=gal?'Vía Láctea':'Sistema solar';if(gal){controls.target.set(0,0,0);camera.position.set(0,360,720);controls.maxDistance=1800;camera.lookAt(0,0,0);document.querySelector('#info').innerHTML='<b style="color:#fff">Vía Láctea</b><br>Representación esquemática de nuestra galaxia. El Sol se desplaza alrededor del centro galáctico a unos 220 km/s. Una vuelta tarda aproximadamente 230 millones de años.'}else{controls.target.set(0,0,0);camera.position.set(0,34,68);controls.maxDistance=9000}}
 document.querySelector('#optionsBtn').onclick=()=>{const panel=document.querySelector('#optionsPanel'),open=!panel.classList.contains('open');panel.classList.toggle('open',open);document.querySelector('#optionsBtn').setAttribute('aria-expanded',String(open));};
 document.querySelector('#solarBtn').onclick=()=>setMode('solar');document.querySelector('#galaxyBtn').onclick=()=>setMode('galaxy');document.querySelector('#pauseBtn').onclick=()=>{paused=!paused;document.querySelector('#pauseBtn').textContent=paused?'Reanudar':'Pausar'};document.querySelector('#resetBtn').onclick=()=>{elapsed=0;paused=false;document.querySelector('#pauseBtn').textContent='Pausar';setMode('solar')};
