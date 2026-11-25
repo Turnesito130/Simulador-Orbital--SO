@@ -23,18 +23,14 @@ jobs:
         run: npm install --no-save three@0.160.0 esbuild
       - name: Crear versión autocontenida
         run: node scripts/build-offline.mjs
-      - name: Comprobar que el ZIP contiene el simulador
+      - name: Comprobar que el paquete no depende de CDN
         run: |
           test -s dist/Simulador-Orbital-SO/index.html
           ! grep -q 'cdn.jsdelivr.net' dist/Simulador-Orbital-SO/index.html
-      - name: Crear ZIP
-        run: |
-          cd dist
-          zip -r ../Simulador-Orbital-SO-Chromebook.zip Simulador-Orbital-SO
-      - name: Publicar ZIP como artefacto descargable
+      - name: Publicar ZIP descargable
         uses: actions/upload-artifact@v4
         with:
           name: Simulador-Orbital-SO-Chromebook
-          path: Simulador-Orbital-SO-Chromebook.zip
+          path: dist/Simulador-Orbital-SO/
           if-no-files-found: error
           retention-days: 30
