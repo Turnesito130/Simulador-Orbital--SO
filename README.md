@@ -30,7 +30,7 @@ El catálogo interactivo inicial incluye TRAPPIST-1 (siete planetas confirmados)
 
 ## Recuento de lunas del Sistema Solar
 
-Los recuentos visibles se actualizaron con cifras publicadas por NASA durante 2026: Júpiter 115, Saturno 293, Urano 29 y Neptuno 16. El simulador solo representa algunas lunas destacadas y no dibuja todavía el inventario completo ni todas sus órbitas. Consulta la [referencia de NASA sobre lunas](https://science.nasa.gov/solar-system/moons/facts/) y el [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/).
+Los recuentos visibles usan cifras de NASA con estas fechas de referencia: Júpiter 115 (abril de 2026), Saturno 293 (agosto de 2026), Urano 29 (agosto de 2026) y Neptuno 16 (2026). El simulador solo representa algunas lunas destacadas y no dibuja todavía el inventario completo ni todas sus órbitas. Consulta la [referencia de NASA sobre lunas](https://science.nasa.gov/solar-system/moons/facts/) y el [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/).
 
 ## Publicación web
 
