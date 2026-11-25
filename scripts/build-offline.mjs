@@ -23,9 +23,11 @@ const result = await build({
 });
 
 const bundled = result.outputFiles[0].text;
+// Evita que una cadena/comentario del bundle cierre prematuramente el elemento script HTML.
+const safeBundled = bundled.replace(/<\/script/gi, "<\\/script");
 const output = source
   .replace(/<script type="importmap">[\s\S]*?<\/script>\s*/i, "")
-  .replace(match[0], "<script>\n" + bundled + "\n</script>");
+  .replace(match[0], "<script>\n" + safeBundled + "\n</script>");
 
 const outDir = resolve(root, "dist/Simulador-Orbital-SO");
 await mkdir(outDir, { recursive: true });
