@@ -36,3 +36,6 @@ Esta es una primera maqueta funcional, no una efeméride de precisión. Las dist
 3. Incorporar datos orbitales y orientación de planos con fuentes verificables.
 4. Añadir fichas científicas completas para planetas, planetas enanos y lunas.
 5. Eliminar dependencias de Internet y probar un paquete descargable offline en ChromeOS.
+
+
+Última corrección de cámara: el zoom puede dirigirse al cursor y seleccionar cuerpos para centrar el objetivo.
