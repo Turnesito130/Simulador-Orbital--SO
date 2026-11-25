@@ -267,19 +267,46 @@ for(let arm=0;arm<4;arm++){
 }
 const halo=new THREE.Mesh(new THREE.SphereGeometry(280,32,20),new THREE.MeshBasicMaterial({color:0x5a79b5,wireframe:true,transparent:true,opacity:.025}));halo.scale.y=.025;galaxyGroup.add(halo);
 const sunMarker=new THREE.Mesh(new THREE.SphereGeometry(2.1,24,16),new THREE.MeshBasicMaterial({color:0xffe28a}));sunMarker.position.set(-115,0,35);galaxyGroup.add(sunMarker);
-// Sagitario A*: agujero negro supermasivo del centro galáctico.
-// El tamaño del horizonte y del disco está exagerado para que pueda distinguirse en esta escala.
-const blackHole=new THREE.Mesh(new THREE.SphereGeometry(2.7,48,32),new THREE.MeshBasicMaterial({color:0x020309}));
-galaxyGroup.add(blackHole);
-const accretionDisk=new THREE.Mesh(new THREE.RingGeometry(3.4,10.5,160),new THREE.MeshBasicMaterial({color:0xffa34a,side:THREE.DoubleSide,transparent:true,opacity:.72,blending:THREE.AdditiveBlending,depthWrite:false}));
-accretionDisk.rotation.x=Math.PI/2;accretionDisk.scale.set(1,.42,1);galaxyGroup.add(accretionDisk);
-const innerGlow=new THREE.Mesh(new THREE.TorusGeometry(3.6,.24,12,128),new THREE.MeshBasicMaterial({color:0xffe1a0,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));
-innerGlow.rotation.x=Math.PI/2;galaxyGroup.add(innerGlow);
-const outerGlow=new THREE.Mesh(new THREE.TorusGeometry(6.2,.16,10,128),new THREE.MeshBasicMaterial({color:0xff7838,transparent:true,opacity:.48,blending:THREE.AdditiveBlending,depthWrite:false}));
-outerGlow.rotation.x=Math.PI/2;galaxyGroup.add(outerGlow);
-const jetMat=new THREE.MeshBasicMaterial({color:0x8bbdff,transparent:true,opacity:.32,blending:THREE.AdditiveBlending,depthWrite:false});
-const jetA=new THREE.Mesh(new THREE.ConeGeometry(1.2,24,24),jetMat);jetA.position.y=14;galaxyGroup.add(jetA);
-const jetB=new THREE.Mesh(new THREE.ConeGeometry(1.2,24,24),jetMat);jetB.position.y=-14;jetB.rotation.z=Math.PI;galaxyGroup.add(jetB);
+// Sagitario A*: representación visual estilizada, no a escala ni un trazado relativista exacto.
+const blackHole=new THREE.Mesh(new THREE.SphereGeometry(3.15,96,64),new THREE.MeshBasicMaterial({color:0x000000}));
+blackHole.renderOrder=4;galaxyGroup.add(blackHole);
+// Disco de acreción: textura procedural con filamentos turbulentos y gradiente térmico.
+const diskCanvas=document.createElement('canvas');diskCanvas.width=1024;diskCanvas.height=256;
+const dctx=diskCanvas.getContext('2d');
+const diskImage=dctx.createImageData(diskCanvas.width,diskCanvas.height);
+for(let y=0;y<diskCanvas.height;y++){
+ for(let x=0;x<diskCanvas.width;x++){
+  const u=x/diskCanvas.width,v=y/diskCanvas.height;
+  const band=Math.pow(Math.max(0,Math.sin(v*Math.PI)),.55);
+  const turbulence=(Math.sin(x*.071+Math.sin(y*.12)*3)+Math.sin(x*.027-y*.19)*.55+Math.sin(x*.13+y*.07)*.25);
+  const filaments=Math.max(0,Math.sin(x*.19+turbulence*2.1));
+  const heat=Math.max(0,Math.min(1,.25+band*.55+filaments*.22+(1-v)*.12));
+  const inner=Math.max(0,1-Math.abs(v-.5)*5);
+  const i=(y*diskCanvas.width+x)*4;
+  diskImage.data[i]=Math.min(255,105+heat*130+inner*20);
+  diskImage.data[i+1]=Math.min(255,25+heat*105+inner*125);
+  diskImage.data[i+2]=Math.min(255,5+heat*28+inner*190);
+  diskImage.data[i+3]=Math.round(255*Math.min(1,band*(.48+filaments*.35)));
+ }
+}
+dctx.putImageData(diskImage,0,0);
+const diskTexture=new THREE.CanvasTexture(diskCanvas);diskTexture.colorSpace=THREE.SRGBColorSpace;
+const diskMaterial=new THREE.MeshBasicMaterial({map:diskTexture,side:THREE.DoubleSide,transparent:true,opacity:.96,blending:THREE.AdditiveBlending,depthWrite:false});
+const accretionDisk=new THREE.Mesh(new THREE.RingGeometry(3.55,13.5,256,8),diskMaterial);
+accretionDisk.rotation.x=Math.PI/2;accretionDisk.scale.set(1,.38,1);accretionDisk.renderOrder=2;galaxyGroup.add(accretionDisk);
+// Anillo de fotones: borde luminoso fino alrededor de la sombra negra.
+const photonRing=new THREE.Mesh(new THREE.TorusGeometry(3.42,.105,16,192),new THREE.MeshBasicMaterial({color:0xffd49a,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));
+photonRing.rotation.x=Math.PI/2;photonRing.renderOrder=5;galaxyGroup.add(photonRing);
+// Arco superior brillante: recurso visual para sugerir la lente gravitacional.
+const lensedArc=new THREE.Mesh(new THREE.TorusGeometry(4.05,.16,12,160,Math.PI*1.08),new THREE.MeshBasicMaterial({color:0xffa34d,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));
+lensedArc.rotation.set(Math.PI/2-.22,0,Math.PI*.46);lensedArc.position.y=1.05;lensedArc.renderOrder=6;galaxyGroup.add(lensedArc);
+// Halo tenue, más oscuro en el centro y luminoso en el borde.
+const haloCanvas=document.createElement('canvas');haloCanvas.width=256;haloCanvas.height=256;
+const hctx=haloCanvas.getContext('2d');const hg=hctx.createRadialGradient(128,128,48,128,128,126);
+hg.addColorStop(0,'rgba(0,0,0,0)');hg.addColorStop(.48,'rgba(20,10,8,0)');hg.addColorStop(.72,'rgba(255,125,48,.12)');hg.addColorStop(.88,'rgba(255,170,95,.08)');hg.addColorStop(1,'rgba(255,170,95,0)');
+hctx.fillStyle=hg;hctx.fillRect(0,0,256,256);
+const haloSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(haloCanvas),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+haloSprite.scale.set(34,34,1);haloSprite.renderOrder=1;galaxyGroup.add(haloSprite);
 const bhLabelCanvas=document.createElement('canvas');bhLabelCanvas.width=512;bhLabelCanvas.height=96;const bhctx=bhLabelCanvas.getContext('2d');bhctx.font='bold 42px Arial';bhctx.fillStyle='#ffe3b6';bhctx.textAlign='center';bhctx.fillText('SAGITARIO A*',256,58);
 const bhLabel=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(bhLabelCanvas),transparent:true,depthWrite:false}));bhLabel.position.set(0,16,0);bhLabel.scale.set(34,6.4,1);galaxyGroup.add(bhLabel);
 galaxyGroup.visible=false;
