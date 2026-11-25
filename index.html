@@ -192,7 +192,27 @@ for(let i=0;i<9500;i++){
 }
 // Mantener el cinturón con un sombreado sutil y una segunda población de tamaños pequeños.
 const astGeo=new THREE.BufferGeometry();astGeo.setAttribute('position',new THREE.Float32BufferAttribute(astPos,3));astGeo.setAttribute('color',new THREE.Float32BufferAttribute(astCols,3));
+
 beltGroup.add(new THREE.Points(astGeo,new THREE.PointsMaterial({vertexColors:true,size:.15,sizeAttenuation:true,transparent:true,opacity:.82,depthWrite:false})));
+// Pequeños asteroides 3D instanciados: población artística para dar volumen al cinturón.
+// No representan asteroides concretos ni sus órbitas reales; el instancing reduce llamadas de dibujo.
+const rockCount=matchMedia('(max-width:650px)').matches?520:1100;
+const rockGeo=new THREE.IcosahedronGeometry(.12,1);
+const rockMat=new THREE.MeshStandardMaterial({color:0xaaa39a,roughness:1,metalness:0});
+const rockInstances=new THREE.InstancedMesh(rockGeo,rockMat,rockCount);
+rockInstances.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+const rockDummy=new THREE.Object3D(),rockColor=new THREE.Color();
+for(let i=0;i<rockCount;i++){
+ const a=Math.random()*Math.PI*2,au=2.1+Math.random()*1.2,r=orbitRadius(au);
+ const size=THREE.MathUtils.randFloat(.38,1.55);
+ rockDummy.position.set(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(.55),Math.sin(a)*r);
+ rockDummy.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);
+ rockDummy.scale.set(size*THREE.MathUtils.randFloat(.72,1.3),size*THREE.MathUtils.randFloat(.62,1.18),size*THREE.MathUtils.randFloat(.7,1.25));
+ rockDummy.updateMatrix();rockInstances.setMatrixAt(i,rockDummy.matrix);
+ const shade=THREE.MathUtils.randFloat(.38,.82);rockColor.setRGB(shade,shade*.94,shade*.86);rockInstances.setColorAt(i,rockColor);
+}
+rockInstances.instanceMatrix.needsUpdate=true;if(rockInstances.instanceColor)rockInstances.instanceColor.needsUpdate=true;
+beltGroup.add(rockInstances);
 // Segunda capa fina de polvo: efecto visual, no partículas individualmente catalogadas.
 const dustPos=[];for(let i=0;i<6500;i++){const a=Math.random()*Math.PI*2,au=2.15+Math.random()*1.1,r=orbitRadius(au);dustPos.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(.62),Math.sin(a)*r)}
 const dustGeo=new THREE.BufferGeometry();dustGeo.setAttribute('position',new THREE.Float32BufferAttribute(dustPos,3));beltGroup.add(new THREE.Points(dustGeo,new THREE.PointsMaterial({color:0xc8bda8,size:.07,sizeAttenuation:true,transparent:true,opacity:.25,depthWrite:false})));
@@ -369,7 +389,7 @@ constellationSelect.onchange=()=>{const ab=constellationSelect.value;if(!ab){con
 
 document.querySelector('#zoom').oninput=e=>{const v=Number(e.target.value)/100;const d=THREE.MathUtils.lerp(160,18,v);if(mode==='solar'){const dir=camera.position.clone().sub(controls.target).normalize();camera.position.copy(controls.target).addScaledVector(dir,d)}};
 function animate(now){requestAnimationFrame(animate);if(document.hidden){last=now;return}const dt=Math.min((now-last)/1000,.08);last=now;moveFreely(dt);if(!paused){elapsed+=dt*speedValue();if(mode==='solar'){planetObjects.forEach(o=>{const period=o.d[2];o.pivot.rotation.y=-(elapsed/period)*Math.PI*2;o.mesh.rotation.y=elapsed*.03;if(o.mesh.userData.clouds)o.mesh.userData.clouds.rotation.y=elapsed*.034;o.moonGroup.children.forEach(m=>{if(m.isMesh){const phase=elapsed/m.userData.period* Math.PI*2;m.position.set(Math.cos(phase)*m.userData.r,0,Math.sin(phase)*m.userData.r)}})});}else{const galacticPeriod=230e6*365.25;const a=elapsed/galacticPeriod*Math.PI*2;sunMarker.position.set(Math.cos(a)*125,0,Math.sin(a)*125)}}
-sun.rotation.y=elapsed*.0009;sunCore.rotation.y=-elapsed*.0014;flareGroup.rotation.y=elapsed*.00012;sunHalo.material.rotation=elapsed*.000035;if(visorTarget&&mode==='solar'){const p=visorTarget.getWorldPosition(new THREE.Vector3());const delta=p.clone().sub(controls.target);camera.position.add(delta);controls.target.copy(p);}document.querySelector('#date').textContent='Día '+Math.floor(elapsed).toLocaleString('es-ES');controls.update();renderer.render(scene,camera)}
+beltGroup.rotation.y=elapsed*.000035;kuiperGroup.rotation.y=elapsed*.000012;sun.rotation.y=elapsed*.0009;sunCore.rotation.y=-elapsed*.0014;flareGroup.rotation.y=elapsed*.00012;sunHalo.material.rotation=elapsed*.000035;if(visorTarget&&mode==='solar'){const p=visorTarget.getWorldPosition(new THREE.Vector3());const delta=p.clone().sub(controls.target);camera.position.add(delta);controls.target.copy(p);}document.querySelector('#date').textContent='Día '+Math.floor(elapsed).toLocaleString('es-ES');controls.update();renderer.render(scene,camera)}
 
 const missions = [
 {id:'voyager1',name:'Voyager 1',agency:'NASA (Estados Unidos)',launch:'5 septiembre 1977',rocket:'Titan IIIE-Centaur',type:'Sonda de sobrevuelo',target:'Júpiter, Saturno y espacio interestelar',arrival:'Sobrevuelo de Júpiter: 5 marzo 1979 · Saturno: 12 noviembre 1980 · espacio interestelar: agosto 2012',status:'Misión extendida. Desde el 14 noviembre 2026 la NASA investiga una anomalía: recibe la portadora, pero no datos científicos ni de ingeniería; la antena y el sistema de orientación siguen respondiendo.',purpose:'Estudiar los planetas gigantes y después medir el entorno más allá de la heliosfera.',discoveries:'Estudió lunas y anillos de Júpiter y Saturno; detectó volcanismo activo en Ío y fue la primera nave en entrar en el espacio interestelar.',signal:'El 18 noviembre 2026 alcanzó una distancia de un día-luz (unos 25.9 mil millones de km). La radio tarda aproximadamente 24 horas por trayecto; ida y vuelta, unas 48 horas. La NASA confirmó el hito el 19 noviembre.',url:'https://science.nasa.gov/blogs/voyager/2026/11/18/voyager-1-engineers-analyze-data-issue-ready-to-confirm-light-day/'},
