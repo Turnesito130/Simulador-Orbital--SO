@@ -44,3 +44,8 @@ Esta es una primera maqueta funcional, no una efeméride de precisión. Las dist
 ## Mejoras visuales recientes
 
 Se han mejorado las texturas procedurales de los planetas, la atmósfera y nubes de la Tierra, los anillos de Saturno, el resplandor solar y la densidad visual del campo estelar y de la Vía Láctea. Son recursos gráficos generados localmente para el simulador; no equivalen a mapas de observación científica.
+
+
+## Navegación y cielo profundo
+
+La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre y zoom con rueda o gesto de pellizco. Se incluyen patrones de estrellas destacados de ocho constelaciones con nombres de estrellas y un primer conjunto de galaxias cercanas y objetos conocidos con información emergente al pasar el puntero. Las figuras de constelaciones usan direcciones J2000 aproximadas; el catálogo de galaxias está colocado de forma esquemática y no a escala. No se debe interpretar como catálogo completo de las 88 constelaciones ni como mapa 3D de precisión.
