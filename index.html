@@ -55,7 +55,7 @@ button,select,input{font:inherit;color:inherit}button,select{background:#10243c;
 <div id="hud">
 <header><button id="optionsBtn" aria-label="Abrir menú" aria-expanded="false" title="Menú">☰</button></header>
 <div class="layout" id="optionsPanel">
-<section class="panel"><div class="controls" style="margin-bottom:12px"><button id="missionsBtn">Misiones espaciales</button><button id="exoBtn">Galaxias y exoplanetas</button></div><h2>Controles de simulación</h2><div class="controls"><button id="solarBtn" class="active">Sistema solar</button><button id="galaxyBtn">Vía Láctea</button><button id="pauseBtn">Pausar</button><button id="resetBtn">Reiniciar</button></div>
+<section class="panel"><div class="controls" style="margin-bottom:12px"><button id="missionsBtn">Misiones espaciales</button><button id="exoBtn">Galaxias y exoplanetas</button></div><h2>Controles de simulación · <span id="mode">Sistema solar</span></h2><div class="controls"><button id="solarBtn" class="active">Sistema solar</button><button id="galaxyBtn">Vía Láctea</button><button id="pauseBtn">Pausar</button><button id="resetBtn">Reiniciar</button></div>
 <div class="rowline"><label><input id="realTime" type="checkbox"> Tiempo real (1 segundo simulado = 1 segundo real)</label></div><div class="rowline"><label for="speed">Velocidad del tiempo</label><b id="speedLabel">1 día/s</b></div><input id="speed" type="range" min="-2" max="5" step=".1" value="0">
 <div class="rowline"><label for="zoom">Escala / zoom</label><span class="muted">Cámara</span></div><input id="zoom" type="range" min="0" max="100" value="48">
 <div class="rowline"><label><input id="orbits" type="checkbox" checked> Mostrar órbitas</label></div>
@@ -157,9 +157,9 @@ const data=[
 ['Venus',0.723,224.701,.72,0xe6bd78,'Rocoso','0',''],
 ['Tierra',1,365.256,0.78,0x398de0,'Rocoso','1','Luna'],
 ['Marte',1.524,686.98,.53,0xd66b45,'Rocoso','2','Fobos y Deimos'],
-['Júpiter',5.203,4332.59,1.9,0xd6a477,'Gigante gaseoso','95+','Ío, Europa, Ganímedes, Calisto…'],
-['Saturno',9.537,10759.2,1.6,0xe5ce91,'Gigante gaseoso','146+','Titán, Encélado, Rea…'],
-['Urano',19.191,30688.5,1.18,0x8bd9df,'Gigante helado','28','Titania, Oberón, Ariel…'],
+['Júpiter',5.203,4332.59,1.9,0xd6a477,'Gigante gaseoso','115','Ío, Europa, Ganímedes, Calisto…'],
+['Saturno',9.537,10759.2,1.6,0xe5ce91,'Gigante gaseoso','293','Titán, Encélado, Rea…'],
+['Urano',19.191,30688.5,1.18,0x8bd9df,'Gigante helado','29','Titania, Oberón, Ariel…'],
 ['Neptuno',30.07,60182,1.15,0x4777e8,'Gigante helado','16','Tritón, Nereida…'],
 ['Plutón',39.482,90560,0.32,0xb9a18c,'Planeta enano','5','Caronte, Nix, Hidra…']
 ];
