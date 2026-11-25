@@ -30,6 +30,13 @@ button,select,input{font:inherit;color:inherit}button,select{background:#10243c;
 #missionDetail a{color:#8bd1ff}
 .mission-note{font-size:11px;color:#91a9c5;line-height:1.5;margin-top:12px}
 @media(max-width:600px){#missionModal{padding:7px}.mission-shell{padding:12px}.mission-top h2{font-size:17px}}
+
+#optionsPanel{display:none;position:absolute;top:76px;left:18px;right:18px;z-index:8;flex:initial;pointer-events:none}
+#optionsPanel.open{display:flex;justify-content:space-between}
+#optionsPanel .panel{box-shadow:0 14px 45px #0009;max-height:calc(100vh - 120px);overflow:auto}
+#optionsBtn{background:#153354;border-color:#69bfff}
+#scene canvas{display:block}
+@media(max-width:650px){#optionsPanel{top:65px;left:8px;right:8px;gap:8px}#optionsPanel.open .right{display:none}#optionsPanel .panel{width:min(290px,88vw);max-height:calc(100vh - 100px)}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
@@ -44,9 +51,9 @@ button,select,input{font:inherit;color:inherit}button,select{background:#10243c;
  </div>
 </div>
 <div id="hud">
-<header><div><h1>SIMULADOR ORBITAL <span style="color:#68c7ff">· SO</span></h1><small>Explora nuestro vecindario cósmico</small></div><div class="controls"><button id="solarBtn" class="active">Sistema solar</button><button id="galaxyBtn">Vía Láctea</button><button id="missionsBtn">Misiones espaciales</button></div></header>
-<div class="layout">
-<section class="panel"><h2>Controles de simulación</h2><div class="controls"><button id="pauseBtn">Pausar</button><button id="resetBtn">Reiniciar</button></div>
+<header><div><h1>SIMULADOR ORBITAL <span style="color:#68c7ff">· SO</span></h1><small>Explora nuestro vecindario cósmico</small></div><div class="controls"><button id="optionsBtn" aria-expanded="false">☰ Opciones</button><button id="missionsBtn">Misiones espaciales</button></div></header>
+<div class="layout" id="optionsPanel">
+<section class="panel"><h2>Controles de simulación</h2><div class="controls"><button id="solarBtn" class="active">Sistema solar</button><button id="galaxyBtn">Vía Láctea</button><button id="pauseBtn">Pausar</button><button id="resetBtn">Reiniciar</button></div>
 <div class="rowline"><label for="speed">Velocidad del tiempo</label><b id="speedLabel">1 día/s</b></div><input id="speed" type="range" min="-2" max="5" step=".1" value="0">
 <div class="rowline"><label for="zoom">Escala / zoom</label><span class="muted">Cámara</span></div><input id="zoom" type="range" min="0" max="100" value="48">
 <div class="rowline"><label><input id="orbits" type="checkbox" checked> Mostrar órbitas</label></div>
@@ -67,10 +74,36 @@ const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.01,20000);ca
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.toneMapping=THREE.ACESFilmicToneMapping;mount.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minDistance=3;controls.maxDistance=9000;
 scene.add(new THREE.AmbientLight(0x8ba8d0,.65));const sunLight=new THREE.PointLight(0xffffff,2400,0,2);scene.add(sunLight);
-const starGeo=new THREE.BufferGeometry(),starPos=[];for(let i=0;i<4500;i++){const r=THREE.MathUtils.randFloat(250,5000),a=Math.random()*Math.PI*2,z=THREE.MathUtils.randFloatSpread(2);starPos.push(Math.cos(a)*r,Math.sin(a)*r,z*r*.35)}starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xa9cfff,size:1.2,sizeAttenuation:true})));
+// Campo estelar completo en 3D: estrellas repartidas por toda la esfera celeste.
+const starGeo=new THREE.BufferGeometry(),starPos=[],starCols=[];
+for(let i=0;i<12500;i++){
+ const u=Math.random()*2-1, a=Math.random()*Math.PI*2, r=THREE.MathUtils.randFloat(1800,5200), q=Math.sqrt(1-u*u);
+ starPos.push(r*q*Math.cos(a),r*u,r*q*Math.sin(a));
+ const tint=[0.62+Math.random()*.38,0.68+Math.random()*.30,0.78+Math.random()*.22];
+ starCols.push(...tint);
+}
+starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));
+starGeo.setAttribute('color',new THREE.Float32BufferAttribute(starCols,3));
+scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({vertexColors:true,size:2.1,sizeAttenuation:true})));
 const solarGroup=new THREE.Group();scene.add(solarGroup);
 const sun=new THREE.Mesh(new THREE.SphereGeometry(2.8,48,32),new THREE.MeshBasicMaterial({color:0xffc45a}));solarGroup.add(sun);
 const glow=new THREE.Mesh(new THREE.SphereGeometry(3.5,32,24),new THREE.MeshBasicMaterial({color:0xffa52e,transparent:true,opacity:.12}));solarGroup.add(glow);
+function makePlanetTexture(name,baseColor){
+ const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d');
+ const base=new THREE.Color(baseColor);x.fillStyle='#'+base.getHexString();x.fillRect(0,0,1024,512);
+ const rand=(a,b)=>a+Math.random()*(b-a);
+ if(name==='Júpiter'||name==='Saturno'||name==='Urano'||name==='Neptuno'){
+  for(let y=0;y<512;y+=rand(5,18)){const h=rand(3,17);x.fillStyle=name==='Júpiter'?['#b98c69','#e5c7a0','#8f6752','#f0d9b2'][Math.floor(Math.random()*4)]:name==='Saturno'?['#d8c69d','#bba77d','#efe0b5'][Math.floor(Math.random()*3)]:name==='Urano'?'#9bdde0':'#315fba';x.globalAlpha=rand(.16,.48);x.fillRect(0,y,1024,h)}
+  if(name==='Júpiter'){x.globalAlpha=.85;x.fillStyle='#a65338';x.beginPath();x.ellipse(690,290,70,27,-.12,0,Math.PI*2);x.fill()}
+ } else {
+  for(let i=0;i<220;i++){const px=rand(0,1024),py=rand(0,512),rx=rand(5,45),ry=rand(3,20);x.globalAlpha=rand(.08,.35);x.fillStyle=name==='Tierra'?(Math.random()>.48?'#39734c':'#d4c18e'):name==='Marte'?'#8d4735':name==='Mercurio'?'#77736d':name==='Venus'?'#d9a76e':'#8b8176';x.beginPath();x.ellipse(px,py,rx,ry,rand(-1,1),0,Math.PI*2);x.fill()}
+  if(name==='Tierra'){x.globalAlpha=.9;x.fillStyle='#2f7954';for(let i=0;i<20;i++){x.beginPath();x.ellipse(rand(0,1024),rand(30,480),rand(12,75),rand(5,30),rand(-1,1),0,Math.PI*2);x.fill()}}
+ }
+ x.globalAlpha=1;
+ // Cráteres suaves para mundos rocosos.
+ if(['Mercurio','Marte','Plutón'].includes(name)){for(let i=0;i<260;i++){const px=rand(0,1024),py=rand(0,512),r=rand(1,8);x.fillStyle='rgba(25,20,18,.13)';x.beginPath();x.arc(px,py,r,0,Math.PI*2);x.fill();x.strokeStyle='rgba(255,230,205,.13)';x.stroke()}}
+ return new THREE.CanvasTexture(c);
+}
 const data=[
 ['Mercurio',0.387,87.969,.38,0xaaa6a0,'Rocoso','0',''],
 ['Venus',0.723,224.701,.72,0xe6bd78,'Rocoso','0',''],
@@ -84,15 +117,52 @@ const data=[
 ];
 const planetObjects=[];const orbitGroup=new THREE.Group();solarGroup.add(orbitGroup);
 function orbitRadius(au){return 5+Math.sqrt(au)*8.5}
-data.forEach((d,i)=>{const [name,au,period,size,color,type,moons,moonNames]=d;const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const mesh=new THREE.Mesh(new THREE.SphereGeometry(size,32,24),new THREE.MeshStandardMaterial({color,roughness:.85,metalness:.02}));mesh.position.x=r;pivot.add(mesh);const ringPts=[];for(let k=0;k<=256;k++){const a=k/256*Math.PI*2;ringPts.push(new THREE.Vector3(Math.cos(a)*r,0,Math.sin(a)*r))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.35,size*2.15,64),new THREE.MeshBasicMaterial({color:0xc9b58c,side:THREE.DoubleSide,transparent:true,opacity:.7}));ring.rotation.x=Math.PI/2;ring.position.x=r;pivot.add(ring)}
+data.forEach((d,i)=>{const [name,au,period,size,color,type,moons,moonNames]=d;const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const surfaceTexture=makePlanetTexture(name,color);
+const mesh=new THREE.Mesh(new THREE.SphereGeometry(size,64,48),new THREE.MeshStandardMaterial({map:surfaceTexture,color:0xffffff,roughness:.92,metalness:.0}));
+mesh.rotation.z=(name==='Urano'?Math.PI/2:0);
+if(name==='Tierra'||name==='Venus') {
+ const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(size*1.035,48,32),new THREE.MeshBasicMaterial({color:name==='Tierra'?0x5daeff:0xe8b77c,transparent:true,opacity:name==='Tierra'?.10:.07,side:THREE.BackSide}));
+ mesh.add(atmosphere);
+}mesh.position.x=r;pivot.add(mesh);const ringPts=[];for(let k=0;k<=256;k++){const a=k/256*Math.PI*2;ringPts.push(new THREE.Vector3(Math.cos(a)*r,0,Math.sin(a)*r))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.35,size*2.15,64),new THREE.MeshBasicMaterial({color:0xc9b58c,side:THREE.DoubleSide,transparent:true,opacity:.7}));ring.rotation.x=Math.PI/2;ring.position.x=r;pivot.add(ring)}
 const moonGroup=new THREE.Group();mesh.add(moonGroup);if(i===2||i===3||i===4||i===5||i===6||i===7||i===8){const count=i===2?1:i===3?2:i===4?4:i===5?4:i===6?3:i===7?1:1;for(let m=0;m<count;m++){const mr=size+(m+1)*.55;const moon=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.09,size*.13),12,10),new THREE.MeshStandardMaterial({color:0xb9c4d2}));moon.position.x=mr;moonGroup.add(moon);const pts=[];for(let k=0;k<=48;k++){const a=k/48*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*mr,0,Math.sin(a)*mr))}moonGroup.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x7890aa,transparent:true,opacity:.3})));moon.userData={phase:m*2.2,r:mr,period:2.5+m*1.7}}}
 planetObjects.push({d,pivot,mesh,moonGroup,r});const b=document.createElement('button');b.textContent=name; b.addEventListener('click',()=>focusPlanet(i));document.querySelector('#planetList').appendChild(b);});
-const beltGroup=new THREE.Group();solarGroup.add(beltGroup);const astPos=[];for(let i=0;i<1800;i++){const a=Math.random()*Math.PI*2,r=orbitRadius(2.1+Math.random()*.9),y=THREE.MathUtils.randFloatSpread(.22);astPos.push(Math.cos(a)*r,y,Math.sin(a)*r)}const astGeo=new THREE.BufferGeometry();astGeo.setAttribute('position',new THREE.Float32BufferAttribute(astPos,3));beltGroup.add(new THREE.Points(astGeo,new THREE.PointsMaterial({color:0x9d8d78,size:.11})));
+// Cinturón principal: franja entre ~2,1 y 3,3 UA. Los puntos representan millones de cuerpos, no objetos individuales.
+const beltGroup=new THREE.Group();solarGroup.add(beltGroup);const astPos=[],astCols=[];
+for(let i=0;i<9500;i++){
+ const a=Math.random()*Math.PI*2,au=2.1+Math.random()*1.2,r=orbitRadius(au);
+ const y=THREE.MathUtils.randFloatSpread(.48);
+ astPos.push(Math.cos(a)*r,y,Math.sin(a)*r);
+ const shade=THREE.MathUtils.randFloat(.42,.78);astCols.push(shade,shade*.91,shade*.78);
+}
+const astGeo=new THREE.BufferGeometry();astGeo.setAttribute('position',new THREE.Float32BufferAttribute(astPos,3));astGeo.setAttribute('color',new THREE.Float32BufferAttribute(astCols,3));
+beltGroup.add(new THREE.Points(astGeo,new THREE.PointsMaterial({vertexColors:true,size:.16,sizeAttenuation:true})));
 const warpGroup=new THREE.Group();solarGroup.add(warpGroup);const wmat=new THREE.MeshBasicMaterial({color:0x4ba9ff,wireframe:true,transparent:true,opacity:.18});const warp=new THREE.Mesh(new THREE.PlaneGeometry(100,100,42,42),wmat);warp.rotation.x=-Math.PI/2;const p=warp.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.sqrt(x*x+z*z);p.setZ(i,-5*Math.exp(-r*.11))}warp.geometry.computeVertexNormals();warpGroup.add(warp);warpGroup.visible=false;
-const galaxyGroup=new THREE.Group();scene.add(galaxyGroup);const core=new THREE.Mesh(new THREE.SphereGeometry(9,32,24),new THREE.MeshBasicMaterial({color:0xffd9a0}));galaxyGroup.add(core);const arms=[];for(let arm=0;arm<4;arm++){const pts=[];for(let j=0;j<1500;j++){const t=j/1499,r=15+t*230,a=arm*Math.PI/2+t*8.5;pts.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(5)*(1-t),Math.sin(a)*r)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));galaxyGroup.add(new THREE.Points(g,new THREE.PointsMaterial({color:arm%2?0x7da9ff:0xffd7ad,size:1.1,transparent:true,opacity:.75})))}const sunMarker=new THREE.Mesh(new THREE.SphereGeometry(2.5,24,16),new THREE.MeshBasicMaterial({color:0xffd44f}));galaxyGroup.add(sunMarker);galaxyGroup.visible=false;
+// Vía Láctea: disco visto desde arriba, barra central, bulbo y brazos espirales con polvo y estrellas distribuidas por todo el disco.
+const galaxyGroup=new THREE.Group();scene.add(galaxyGroup);
+const bulge=new THREE.Mesh(new THREE.SphereGeometry(25,48,32),new THREE.MeshBasicMaterial({color:0xffc982,transparent:true,opacity:.34}));bulge.scale.set(1,.22,1);galaxyGroup.add(bulge);
+const bar=new THREE.Mesh(new THREE.BoxGeometry(92,3,17),new THREE.MeshBasicMaterial({color:0xffd49a,transparent:true,opacity:.32}));bar.rotation.y=-.35;galaxyGroup.add(bar);
+const diskPos=[],diskCol=[];
+for(let i=0;i<36000;i++){
+ const arm=Math.floor(Math.random()*4),t=Math.random(),r=18+t*255;
+ const angle=arm*Math.PI/2 + Math.log(Math.max(1,r/18))*1.75 + THREE.MathUtils.randFloatSpread(.38);
+ const spread=THREE.MathUtils.randFloatSpread(8)*(0.3+t);
+ diskPos.push(Math.cos(angle)*r+THREE.MathUtils.randFloatSpread(8),THREE.MathUtils.randFloatSpread(2.2)*(1-t*.45),Math.sin(angle)*r+THREE.MathUtils.randFloatSpread(8));
+ const warm=Math.random();diskCol.push(warm>.75?1:.58+Math.random()*.3,warm>.75?.72:.68+Math.random()*.25,warm>.75?.43:.82+Math.random()*.18);
+}
+const diskGeo=new THREE.BufferGeometry();diskGeo.setAttribute('position',new THREE.Float32BufferAttribute(diskPos,3));diskGeo.setAttribute('color',new THREE.Float32BufferAttribute(diskCol,3));
+galaxyGroup.add(new THREE.Points(diskGeo,new THREE.PointsMaterial({vertexColors:true,size:1.05,transparent:true,opacity:.9,sizeAttenuation:true})));
+for(let arm=0;arm<4;arm++){
+ const dust=[];for(let j=0;j<4200;j++){const t=Math.random(),r=30+t*235,a=arm*Math.PI/2+Math.log(r/25)*1.75+THREE.MathUtils.randFloatSpread(.13);dust.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(1.2),Math.sin(a)*r)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(dust,3));
+ galaxyGroup.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x344d78,size:1.5,transparent:true,opacity:.55})));
+}
+const halo=new THREE.Mesh(new THREE.SphereGeometry(280,32,20),new THREE.MeshBasicMaterial({color:0x5a79b5,wireframe:true,transparent:true,opacity:.025}));halo.scale.y=.025;galaxyGroup.add(halo);
+const sunMarker=new THREE.Mesh(new THREE.SphereGeometry(2.1,24,16),new THREE.MeshBasicMaterial({color:0xffe28a}));sunMarker.position.set(-115,0,35);galaxyGroup.add(sunMarker);
+galaxyGroup.visible=false;
 let elapsed=0,paused=false,mode='solar',selected=-1,last=performance.now();const speed=document.querySelector('#speed');function speedValue(){return Math.pow(10,Number(speed.value))}function updateSpeedLabel(){const v=speedValue();document.querySelector('#speedLabel').textContent=(v>=1?v.toFixed(v<10?1:0):v.toFixed(3))+' días/s'}speed.addEventListener('input',updateSpeedLabel);updateSpeedLabel();
 function focusPlanet(i){selected=i;const o=planetObjects[i];if(mode!=='solar')setMode('solar');const target=o.mesh.getWorldPosition(new THREE.Vector3());controls.target.copy(target);const dist=Math.max(5,o.d[3]*8);camera.position.copy(target).add(new THREE.Vector3(dist,dist*.65,dist*1.6));document.querySelector('#info').innerHTML='<b style="color:#fff;font-size:14px">'+o.d[0]+'</b><br>'+o.d[5]+'<br>Distancia media al Sol: '+o.d[1]+' UA<br>Periodo orbital: '+o.d[2].toLocaleString('es-ES')+' días<br>Lunas conocidas (aprox.): '+o.d[6]+'<br><span class="muted">'+o.d[7]+'</span>'}
-function setMode(m){mode=m;const gal=m==='galaxy';solarGroup.visible=!gal;galaxyGroup.visible=gal;document.querySelector('#solarBtn').classList.toggle('active',!gal);document.querySelector('#galaxyBtn').classList.toggle('active',gal);document.querySelector('#mode').textContent=gal?'Vía Láctea':'Sistema solar';if(gal){controls.target.set(0,0,0);camera.position.set(0,300,650);controls.maxDistance=4000;document.querySelector('#info').innerHTML='<b style="color:#fff">Vía Láctea</b><br>Representación esquemática de nuestra galaxia. El Sol se desplaza alrededor del centro galáctico a unos 220 km/s. Una vuelta tarda aproximadamente 230 millones de años.'}else{controls.target.set(0,0,0);camera.position.set(0,34,68);controls.maxDistance=9000}}
+function setMode(m){mode=m;const gal=m==='galaxy';solarGroup.visible=!gal;galaxyGroup.visible=gal;document.querySelector('#solarBtn').classList.toggle('active',!gal);document.querySelector('#galaxyBtn').classList.toggle('active',gal);document.querySelector('#mode').textContent=gal?'Vía Láctea':'Sistema solar';if(gal){controls.target.set(0,0,0);camera.position.set(0,360,720);controls.maxDistance=1800;camera.lookAt(0,0,0);document.querySelector('#info').innerHTML='<b style="color:#fff">Vía Láctea</b><br>Representación esquemática de nuestra galaxia. El Sol se desplaza alrededor del centro galáctico a unos 220 km/s. Una vuelta tarda aproximadamente 230 millones de años.'}else{controls.target.set(0,0,0);camera.position.set(0,34,68);controls.maxDistance=9000}}
+document.querySelector('#optionsBtn').onclick=()=>{const panel=document.querySelector('#optionsPanel'),open=!panel.classList.contains('open');panel.classList.toggle('open',open);document.querySelector('#optionsBtn').setAttribute('aria-expanded',String(open));};
 document.querySelector('#solarBtn').onclick=()=>setMode('solar');document.querySelector('#galaxyBtn').onclick=()=>setMode('galaxy');document.querySelector('#pauseBtn').onclick=()=>{paused=!paused;document.querySelector('#pauseBtn').textContent=paused?'Reanudar':'Pausar'};document.querySelector('#resetBtn').onclick=()=>{elapsed=0;paused=false;document.querySelector('#pauseBtn').textContent='Pausar';setMode('solar')};
 document.querySelector('#orbits').onchange=e=>orbitGroup.visible=e.target.checked;document.querySelector('#belt').onchange=e=>beltGroup.visible=e.target.checked;document.querySelector('#warp').onchange=e=>warpGroup.visible=e.target.checked;
 document.querySelector('#zoom').oninput=e=>{const v=Number(e.target.value)/100;const d=THREE.MathUtils.lerp(160,18,v);if(mode==='solar'){const dir=camera.position.clone().sub(controls.target).normalize();camera.position.copy(controls.target).addScaledVector(dir,d)}};
