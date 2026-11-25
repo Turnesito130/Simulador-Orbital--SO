@@ -183,8 +183,12 @@ for(let i=0;i<9500;i++){
  astPos.push(Math.cos(a)*r,y,Math.sin(a)*r);
  const shade=THREE.MathUtils.randFloat(.42,.78);astCols.push(shade,shade*.91,shade*.78);
 }
+// Mantener el cinturón con un sombreado sutil y una segunda población de tamaños pequeños.
 const astGeo=new THREE.BufferGeometry();astGeo.setAttribute('position',new THREE.Float32BufferAttribute(astPos,3));astGeo.setAttribute('color',new THREE.Float32BufferAttribute(astCols,3));
-beltGroup.add(new THREE.Points(astGeo,new THREE.PointsMaterial({vertexColors:true,size:.19,sizeAttenuation:true,transparent:true,opacity:.9})));
+beltGroup.add(new THREE.Points(astGeo,new THREE.PointsMaterial({vertexColors:true,size:.15,sizeAttenuation:true,transparent:true,opacity:.82,depthWrite:false})));
+// Segunda capa fina de polvo: efecto visual, no partículas individualmente catalogadas.
+const dustPos=[];for(let i=0;i<6500;i++){const a=Math.random()*Math.PI*2,au=2.15+Math.random()*1.1,r=orbitRadius(au);dustPos.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(.62),Math.sin(a)*r)}
+const dustGeo=new THREE.BufferGeometry();dustGeo.setAttribute('position',new THREE.Float32BufferAttribute(dustPos,3));beltGroup.add(new THREE.Points(dustGeo,new THREE.PointsMaterial({color:0xc8bda8,size:.07,sizeAttenuation:true,transparent:true,opacity:.25,depthWrite:false})));
 // Cinturón de Kuiper (30–50 UA) y disco disperso: distribución esquemática basada en los rangos publicados por NASA.
 // Los puntos NO son objetos reales identificados ni posiciones orbitales individuales.
 const kuiperGroup=new THREE.Group();solarGroup.add(kuiperGroup);
@@ -219,6 +223,14 @@ for(let i=0;i<36000;i++){
 }
 const diskGeo=new THREE.BufferGeometry();diskGeo.setAttribute('position',new THREE.Float32BufferAttribute(diskPos,3));diskGeo.setAttribute('color',new THREE.Float32BufferAttribute(diskCol,3));
 galaxyGroup.add(new THREE.Points(diskGeo,new THREE.PointsMaterial({vertexColors:true,size:1.25,transparent:true,opacity:.96,sizeAttenuation:true,depthWrite:false})));
+// Polvo galáctico en carriles finos siguiendo los brazos: recurso gráfico esquemático,
+// no una reconstrucción observacional ni una distribución estelar medida.
+for(let arm=0;arm<4;arm++){
+ const dust=[];for(let j=0;j<5200;j++){const t=Math.random(),r=29+t*238,a=arm*Math.PI/2+Math.log(r/25)*1.75+THREE.MathUtils.randFloatSpread(.075);dust.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(.55),Math.sin(a)*r)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(dust,3));
+ galaxyGroup.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x9bb6d4,size:.62,transparent:true,opacity:.16,depthWrite:false})));
+}
+
 for(let arm=0;arm<4;arm++){
  const dust=[];for(let j=0;j<4200;j++){const t=Math.random(),r=30+t*235,a=arm*Math.PI/2+Math.log(r/25)*1.75+THREE.MathUtils.randFloatSpread(.13);dust.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(1.2),Math.sin(a)*r)}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(dust,3));
@@ -260,6 +272,18 @@ const galaxyCatalog=[
 {name:'Galaxia del Molinete (M101)',type:'Espiral',distance:'≈21 millones de años luz',constellation:'Osa Mayor',fact:'Gran galaxia espiral vista casi de frente.',pos:[-350,80,65]},
 {name:'Centaurus A (NGC 5128)',type:'Lenticular peculiar',distance:'≈12 millones de años luz',constellation:'Centauro',fact:'Galaxia activa con una banda de polvo muy marcada y chorros relativistas.',pos:[80,-65,320]}
 ];
+// Galaxias catalogadas: añadir más objetos Messier/NGC con distancias aproximadas publicadas.
+const extraGalaxies=[
+{name:'Galaxia del Sombrero (M104)',type:'Espiral vista de canto',distance:'≈29 millones de años luz',constellation:'Virgo',fact:'Destaca por su bulbo brillante y su prominente banda de polvo.',pos:[250,-65,100]},
+{name:'M87',type:'Elíptica gigante',distance:'≈53 millones de años luz',constellation:'Virgo',fact:'Galaxia elíptica gigante del cúmulo de Virgo; alberga un agujero negro supermasivo cuya sombra fue captada por el EHT.',pos:[320,30,70]},
+{name:'Galaxia del Molinete (M101)',type:'Espiral',distance:'≈21 millones de años luz',constellation:'Osa Mayor',fact:'Gran galaxia espiral vista casi de frente.',pos:[-350,80,65]},
+{name:'Centaurus A (NGC 5128)',type:'Lenticular peculiar',distance:'≈12 millones de años luz',constellation:'Centauro',fact:'Galaxia activa con una banda de polvo muy marcada y chorros relativistas.',pos:[80,-65,320]},
+{name:'Galaxia del Remolino (M51)',type:'Espiral interactuante',distance:'≈31 millones de años luz',constellation:'Canes Venatici',fact:'Sistema en interacción con una galaxia compañera, NGC 5195.',pos:[-400,45,180]},
+{name:'NGC 253 (Galaxia del Escultor)',type:'Espiral',distance:'≈11 millones de años luz',constellation:'Escultor',fact:'Galaxia cercana con intensa actividad de formación estelar.',pos:[190,-90,-300]},
+{name:'NGC 1300',type:'Espiral barrada',distance:'≈61 millones de años luz',constellation:'Erídano',fact:'Ejemplo destacado de galaxia espiral barrada.',pos:[410,-30,-230]}
+];
+// Fusionar solo si el nombre no existe ya en el catálogo principal.
+for(const g of extraGalaxies)if(!galaxyCatalog.some(x=>x.name===g.name))galaxyCatalog.push(g);
 const galaxyPickables=[];for(const g of galaxyCatalog){const mesh=new THREE.Mesh(new THREE.SphereGeometry(5.2,18,14),new THREE.MeshBasicMaterial({color:0x9fcaff}));mesh.position.set(...g.pos);mesh.userData={kind:'galaxy',...g};galaxyGroup.add(mesh);galaxyPickables.push(mesh);const halo=new THREE.Sprite(new THREE.SpriteMaterial({color:0x8cbcff,transparent:true,opacity:.13,depthWrite:false}));halo.position.copy(mesh.position);halo.scale.set(22,22,1);galaxyGroup.add(halo)}
 const hoverRay=new THREE.Raycaster(),hoverPointer=new THREE.Vector2(),hoverCard=document.querySelector('#hoverCard');let hovered=null;
 renderer.domElement.addEventListener('pointermove',e=>{const r=renderer.domElement.getBoundingClientRect();hoverPointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));hoverRay.setFromCamera(hoverPointer,camera);const targets=mode==='galaxy'?galaxyPickables:skyPickables;const hit=hoverRay.intersectObjects(targets,false)[0];if(hit){const d=hit.object.userData;hovered=hit.object;hoverCard.style.display='block';hoverCard.style.left=Math.min(e.clientX+14,innerWidth-290)+'px';hoverCard.style.top=Math.min(e.clientY+14,innerHeight-130)+'px';hoverCard.innerHTML='<strong>'+d.name+'</strong>'+ (d.kind==='galaxy'?d.type+' · '+d.distance+'<br>Constelación: '+d.constellation+'<br>':'Constelación '+d.abbr+'<br>')+d.fact;}else{hovered=null;hoverCard.style.display='none'}});
