@@ -44,7 +44,7 @@ button,select,input{font:inherit;color:inherit}button,select{background:#10243c;
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 </head>
 <body>
-<div id="scene"></div><div id="galaxyLegend"><strong>Qué estás viendo en la Vía Láctea</strong><div class="legend-title">Estrellas (puntos luminosos)</div>Millones de estrellas representadas de forma estadística; no son estrellas individuales identificadas ni sus posiciones reales.</div><div id="hoverCard"></div><div id="moveHelp">Mover: W A S D · subir/bajar: Q / E · arrastrar para mirar · rueda o pellizco para zoom</div>
+<div id="scene"></div><div id="galaxyLegend"><strong>Qué estás viendo en la Vía Láctea</strong><div class="legend-title">Estrellas (puntos luminosos)</div>Millones de estrellas representadas de forma estadística; no son estrellas individuales identificadas ni sus posiciones reales.</div><div id="hoverCard"></div><div id="moveHelp">Mover: W A S D · subir/bajar: Q / E · R: orbitar el cuerpo bajo el ratón · arrastrar para mirar · rueda/pellizco: zoom</div>
 <div id="missionModal" aria-hidden="true">
  <div class="mission-shell">
   <div class="mission-top"><div><h2>Exploración espacial · Catálogo de misiones</h2><small>Primer conjunto de misiones documentadas</small></div><button id="closeMissions">Cerrar ✕</button></div>
@@ -213,8 +213,8 @@ kuiperEdge.rotation.x=-Math.PI/2;kuiperGroup.add(kuiperEdge);
 const warpGroup=new THREE.Group();solarGroup.add(warpGroup);const wmat=new THREE.MeshBasicMaterial({color:0x4ba9ff,wireframe:true,transparent:true,opacity:.18});const warp=new THREE.Mesh(new THREE.PlaneGeometry(100,100,42,42),wmat);warp.rotation.x=-Math.PI/2;const p=warp.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.sqrt(x*x+z*z);p.setZ(i,-5*Math.exp(-r*.11))}warp.geometry.computeVertexNormals();warpGroup.add(warp);warpGroup.visible=false;
 // Vía Láctea: disco visto desde arriba, barra central, bulbo y brazos espirales con polvo y estrellas distribuidas por todo el disco.
 const galaxyGroup=new THREE.Group();scene.add(galaxyGroup);
-const bulge=new THREE.Mesh(new THREE.SphereGeometry(25,48,32),new THREE.MeshBasicMaterial({color:0xffc982,transparent:true,opacity:.34}));bulge.scale.set(1,.22,1);galaxyGroup.add(bulge);
-const bar=new THREE.Mesh(new THREE.BoxGeometry(92,3,17),new THREE.MeshBasicMaterial({color:0xffd49a,transparent:true,opacity:.32}));bar.rotation.y=-.35;galaxyGroup.add(bar);
+const bulge=new THREE.Mesh(new THREE.SphereGeometry(25,48,32),new THREE.MeshBasicMaterial({color:0xffc982,transparent:true,opacity:.28,depthWrite:false}));bulge.scale.set(1,.22,1);galaxyGroup.add(bulge);
+const bar=new THREE.Mesh(new THREE.BoxGeometry(92,3,17),new THREE.MeshBasicMaterial({color:0xffd49a,transparent:true,opacity:.28,depthWrite:false}));bar.rotation.y=-.35;galaxyGroup.add(bar);
 const diskPos=[],diskCol=[];
 for(let i=0;i<36000;i++){
  const arm=Math.floor(Math.random()*4),t=Math.random(),r=18+t*255;
