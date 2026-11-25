@@ -13,7 +13,8 @@ Simulador 3D interactivo en desarrollo para explorar el Sistema Solar, misiones 
 - Arrastrar: rotar la cámara.
 - Rueda del ratón: acercar y alejar.
 - Botones de planetas: centrar la cámara y consultar datos.
-- Botón **Opciones**: desplegar u ocultar los controles para dejar libre la vista.\n- Velocidad: cambiar el paso del tiempo simulado.
+- Botón **Opciones**: desplegar u ocultar los controles para dejar libre la vista.
+- Velocidad: cambiar el paso del tiempo simulado.
 - Sistema Solar / Vía Láctea: cambiar de escala.
 - Misiones espaciales: abrir el catálogo, buscar por nombre/destino y consultar fichas.
 
@@ -22,6 +23,14 @@ Simulador 3D interactivo en desarrollo para explorar el Sistema Solar, misiones 
 La primera versión del catálogo incluye 15 misiones seleccionadas de exploración robótica: Voyager 1 y 2, Pioneer 10 y 11, Galileo, Cassini-Huygens, New Horizons, Juno, Mars Reconnaissance Orbiter, Mars Odyssey, Curiosity, Perseverance, MESSENGER, Rosetta/Philae y OSIRIS-REx.
 
 Las fichas muestran datos históricos de lanzamiento, agencia, cohete, destino, hitos, objetivo, resultados y estado descrito. Es un **primer lote**, no un inventario completo de todos los satélites y naves lanzados por la humanidad. Los estados y datos operativos deben revisarse y fecharse con fuentes oficiales antes de considerar el catálogo completo.
+
+## Sistemas extrasolares y galaxias
+
+El catálogo interactivo inicial incluye TRAPPIST-1 (siete planetas confirmados) y Proxima Centauri (Proxima b). Muestra sus periodos orbitales publicados y enlaza las fichas del NASA Exoplanet Archive. Es una muestra pequeña: el archivo de NASA registraba 6.473 planetas confirmados el 19 de noviembre de 2026; el simulador todavía no incorpora ese catálogo completo. No se atribuyen planetas confirmados a las galaxias externas representadas ni lunas confirmadas a estos exoplanetas.
+
+## Recuento de lunas del Sistema Solar
+
+Los recuentos visibles se actualizaron con cifras publicadas por NASA durante 2026: Júpiter 115, Saturno 293, Urano 29 y Neptuno 16. El simulador solo representa algunas lunas destacadas y no dibuja todavía el inventario completo ni todas sus órbitas. Consulta la [referencia de NASA sobre lunas](https://science.nasa.gov/solar-system/moons/facts/) y el [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu/).
 
 ## Publicación web
 
