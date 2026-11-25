@@ -60,8 +60,10 @@ button,select,input{font:inherit;color:inherit}button,select{background:#10243c;
 <div class="rowline"><label for="zoom">Escala / zoom</label><span class="muted">Cámara</span></div><input id="zoom" type="range" min="0" max="100" value="48">
 <div class="rowline"><label><input id="orbits" type="checkbox" checked> Mostrar órbitas</label></div>
 <div class="rowline"><label><input id="belt" type="checkbox" checked> Cinturón de asteroides</label></div>
+<div class="rowline"><label><input id="kuiper" type="checkbox" checked> Cinturón de Kuiper y disco disperso</label></div>
+<div class="rowline"><label for="constellationSelect">Constelaciones oficiales (88)</label></div><select id="constellationSelect" class="wide"><option value="">Consultar catálogo IAU…</option></select><div id="constellationInfo" class="muted" style="font-size:11px;line-height:1.5;margin-top:7px">El catálogo oficial contiene 88 regiones del cielo. Solo se dibujan patrones estelares cuando hay coordenadas de estrellas incorporadas.</div>
 <div class="rowline"><label><input id="warp" type="checkbox"> Curvatura del espacio-tiempo*</label></div>
-<div id="hint">*Representación visual conceptual, no una solución relativista. Las distancias y tamaños están comprimidos para facilitar la exploración.</div>
+<div id="hint">*Representación conceptual. Escala comprimida. Kuiper: región principal aprox. 30–50 UA; disco disperso se extiende mucho más lejos. Los puntos son una nube ilustrativa, no objetos reales ni posiciones medidas.</div>
 </section>
 <section class="panel right"><h2>Seleccionar cuerpo</h2><div id="planetList" class="planet-list"></div><div id="info" style="margin-top:12px;font-size:12px;line-height:1.6;color:#b8cbe1">Selecciona un planeta para centrar la cámara y consultar sus datos.</div></section>
 </div>
@@ -183,6 +185,25 @@ for(let i=0;i<9500;i++){
 }
 const astGeo=new THREE.BufferGeometry();astGeo.setAttribute('position',new THREE.Float32BufferAttribute(astPos,3));astGeo.setAttribute('color',new THREE.Float32BufferAttribute(astCols,3));
 beltGroup.add(new THREE.Points(astGeo,new THREE.PointsMaterial({vertexColors:true,size:.19,sizeAttenuation:true,transparent:true,opacity:.9})));
+// Cinturón de Kuiper (30–50 UA) y disco disperso: distribución esquemática basada en los rangos publicados por NASA.
+// Los puntos NO son objetos reales identificados ni posiciones orbitales individuales.
+const kuiperGroup=new THREE.Group();solarGroup.add(kuiperGroup);
+function addTransNeptunianCloud(count,minAU,maxAU,thickness,size,opacity){
+ const positions=[],colors=[];
+ for(let i=0;i<count;i++){
+  const au=minAU+Math.random()*(maxAU-minAU),a=Math.random()*Math.PI*2,r=orbitRadius(au);
+  positions.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(thickness),Math.sin(a)*r);
+  const c=THREE.MathUtils.randFloat(.42,.78);colors.push(c*.88,c*.93,c);
+ }
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+ kuiperGroup.add(new THREE.Points(g,new THREE.PointsMaterial({vertexColors:true,size,sizeAttenuation:true,transparent:true,opacity,depthWrite:false})));
+}
+addTransNeptunianCloud(7200,30,50,2.8,.22,.82);
+addTransNeptunianCloud(2600,50,1000,12,.16,.48);
+const kuiperInner=orbitRadius(30),kuiperOuter=orbitRadius(50);
+const kuiperEdge=new THREE.Mesh(new THREE.RingGeometry(kuiperInner,kuiperOuter,192),new THREE.MeshBasicMaterial({color:0x6a9cc5,side:THREE.DoubleSide,transparent:true,opacity:.035,depthWrite:false}));
+kuiperEdge.rotation.x=-Math.PI/2;kuiperGroup.add(kuiperEdge);
+
 const warpGroup=new THREE.Group();solarGroup.add(warpGroup);const wmat=new THREE.MeshBasicMaterial({color:0x4ba9ff,wireframe:true,transparent:true,opacity:.18});const warp=new THREE.Mesh(new THREE.PlaneGeometry(100,100,42,42),wmat);warp.rotation.x=-Math.PI/2;const p=warp.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.sqrt(x*x+z*z);p.setZ(i,-5*Math.exp(-r*.11))}warp.geometry.computeVertexNormals();warpGroup.add(warp);warpGroup.visible=false;
 // Vía Láctea: disco visto desde arriba, barra central, bulbo y brazos espirales con polvo y estrellas distribuidas por todo el disco.
 const galaxyGroup=new THREE.Group();scene.add(galaxyGroup);
@@ -265,6 +286,18 @@ function setMode(m){mode=m;const gal=m==='galaxy';solarGroup.visible=!gal;galaxy
 document.querySelector('#optionsBtn').onclick=()=>{const panel=document.querySelector('#optionsPanel'),open=!panel.classList.contains('open');panel.classList.toggle('open',open);document.querySelector('#optionsBtn').setAttribute('aria-expanded',String(open));};
 document.querySelector('#solarBtn').onclick=()=>setMode('solar');document.querySelector('#galaxyBtn').onclick=()=>setMode('galaxy');document.querySelector('#pauseBtn').onclick=()=>{paused=!paused;document.querySelector('#pauseBtn').textContent=paused?'Reanudar':'Pausar'};document.querySelector('#resetBtn').onclick=()=>{elapsed=0;paused=false;document.querySelector('#pauseBtn').textContent='Pausar';setMode('solar')};
 document.querySelector('#orbits').onchange=e=>orbitGroup.visible=e.target.checked;document.querySelector('#belt').onchange=e=>beltGroup.visible=e.target.checked;document.querySelector('#warp').onchange=e=>warpGroup.visible=e.target.checked;
+document.querySelector('#kuiper').onchange=e=>kuiperGroup.visible=e.target.checked;
+// Catálogo oficial de las 88 constelaciones IAU: nombres latinos y abreviaturas normalizadas.
+// No se inventan estrellas ni trazos para las 80 que aún no tienen patrón estelar en este visor.
+const iauConstellations=[
+['Andromeda','And'],['Antlia','Ant'],['Apus','Aps'],['Aquarius','Aqr'],['Aquila','Aql'],['Ara','Ara'],['Aries','Ari'],['Auriga','Aur'],['Bootes','Boo'],['Caelum','Cae'],['Camelopardalis','Cam'],['Cancer','Cnc'],['Canes Venatici','CVn'],['Canis Major','CMa'],['Canis Minor','CMi'],['Capricornus','Cap'],['Carina','Car'],['Cassiopeia','Cas'],['Centaurus','Cen'],['Cepheus','Cep'],['Cetus','Cet'],['Chamaeleon','Cha'],['Circinus','Cir'],['Columba','Col'],['Coma Berenices','Com'],['Corona Australis','CrA'],['Corona Borealis','CrB'],['Corvus','Crv'],['Crater','Crt'],['Crux','Cru'],['Cygnus','Cyg'],['Delphinus','Del'],['Dorado','Dor'],['Draco','Dra'],['Equuleus','Equ'],['Eridanus','Eri'],['Fornax','For'],['Gemini','Gem'],['Grus','Gru'],['Hercules','Her'],['Horologium','Hor'],['Hydra','Hya'],['Hydrus','Hyi'],['Indus','Ind'],['Lacerta','Lac'],['Leo','Leo'],['Leo Minor','LMi'],['Lepus','Lep'],['Libra','Lib'],['Lupus','Lup'],['Lynx','Lyn'],['Lyra','Lyr'],['Mensa','Men'],['Microscopium','Mic'],['Monoceros','Mon'],['Musca','Mus'],['Norma','Nor'],['Octans','Oct'],['Ophiuchus','Oph'],['Orion','Ori'],['Pavo','Pav'],['Pegasus','Peg'],['Perseus','Per'],['Phoenix','Phe'],['Pictor','Pic'],['Pisces','Psc'],['Piscis Austrinus','PsA'],['Puppis','Pup'],['Pyxis','Pyx'],['Reticulum','Ret'],['Sagitta','Sge'],['Sagittarius','Sgr'],['Scorpius','Sco'],['Sculptor','Scl'],['Scutum','Sct'],['Serpens','Ser'],['Sextans','Sex'],['Taurus','Tau'],['Telescopium','Tel'],['Triangulum','Tri'],['Triangulum Australe','TrA'],['Tucana','Tuc'],['Ursa Major','UMa'],['Ursa Minor','UMi'],['Vela','Vel'],['Virgo','Vir'],['Volans','Vol'],['Vulpecula','Vul']
+];
+const constellationSelect=document.querySelector('#constellationSelect');
+iauConstellations.forEach(([name,abbr])=>{const o=document.createElement('option');o.value=abbr;o.textContent=name+' ('+abbr+')';const known=constellationData.find(c=>c.abbr===abbr);if(known)o.textContent+=' · patrón visible';const opt=o;constellationSelect.appendChild(opt)});
+const constellationInfo=document.querySelector('#constellationInfo');
+const iauNames=new Map(iauConstellations.map(x=>[x[1],x[0]]));
+constellationSelect.onchange=()=>{const ab=constellationSelect.value;if(!ab){constellationInfo.textContent='El catálogo oficial contiene 88 regiones del cielo.';return}const known=constellationData.find(c=>c.abbr===ab);constellationInfo.innerHTML='<b>'+iauNames.get(ab)+' ('+ab+')</b><br>'+(known?known.fact:'Constelación reconocida oficialmente por la UAI. El patrón de estrellas y sus coordenadas detalladas aún no están incorporados; no se dibujan posiciones inventadas.')};
+
 document.querySelector('#zoom').oninput=e=>{const v=Number(e.target.value)/100;const d=THREE.MathUtils.lerp(160,18,v);if(mode==='solar'){const dir=camera.position.clone().sub(controls.target).normalize();camera.position.copy(controls.target).addScaledVector(dir,d)}};
 function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,.08);last=now;moveFreely(dt);if(!paused){elapsed+=dt*speedValue();if(mode==='solar'){planetObjects.forEach(o=>{const period=o.d[2];o.pivot.rotation.y=-(elapsed/period)*Math.PI*2;o.mesh.rotation.y=elapsed*.03;if(o.mesh.userData.clouds)o.mesh.userData.clouds.rotation.y=elapsed*.034;o.moonGroup.children.forEach(m=>{if(m.isMesh){const phase=elapsed/m.userData.period* Math.PI*2;m.position.set(Math.cos(phase)*m.userData.r,0,Math.sin(phase)*m.userData.r)}})});}else{const galacticPeriod=230e6*365.25;const a=elapsed/galacticPeriod*Math.PI*2;sunMarker.position.set(Math.cos(a)*125,0,Math.sin(a)*125)}}
 document.querySelector('#date').textContent='Día '+Math.floor(elapsed).toLocaleString('es-ES');controls.update();renderer.render(scene,camera)}
