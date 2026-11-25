@@ -34,7 +34,7 @@ Los recuentos visibles usan cifras de NASA con estas fechas de referencia: Júpi
 
 ## Publicación web
 
-El flujo de GitHub Actions de `.github/workflows/deploy.yml` publica esta rama en GitHub Pages. En el repositorio, abre **Settings → Pages** y selecciona **GitHub Actions** como método de publicación. Después de una ejecución correcta, GitHub mostrará la URL pública.
+GitHub Pages publica esta rama mediante el flujo de Pages que GitHub activa al seleccionar **Settings → Pages → GitHub Actions**. Se mantiene un único método automático de publicación para evitar dos despliegues simultáneos del mismo artefacto. Tras una ejecución correcta, GitHub muestra la URL pública.
 
 ## Estado científico y limitaciones
 
