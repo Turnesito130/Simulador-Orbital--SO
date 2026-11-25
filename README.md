@@ -60,3 +60,13 @@ Se han mejorado las texturas procedurales de los planetas, la atmósfera y nubes
 ## Navegación y cielo profundo
 
 La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre y zoom con rueda o gesto de pellizco. Se incluyen patrones de estrellas destacados de ocho constelaciones con direcciones J2000 aproximadas, además de un selector con los 88 nombres y abreviaturas oficiales de la UAI. Las otras 80 aparecen en el catálogo, pero no se dibujan hasta incorporar estrellas y límites oficiales verificables. El cinturón principal de Kuiper se representa entre 30 y 50 UA y el disco disperso como una extensión esquemática; sus puntos son una nube visual generada, no objetos reales ni posiciones orbitales medidas. Las galaxias cercanas continúan en posiciones esquemáticas, no como mapa tridimensional a escala. Las texturas de planetas, Sol, galaxias y nubes son ilustraciones procedurales, no imágenes científicas ni datos observados. Los datos científicos y límites de cada representación deben mostrarse claramente para no confundir ilustración con observación.
+
+
+## Última actualización de interfaz y exploración
+
+- Menú compacto circular en la esquina superior izquierda; se retiran la cabecera ancha y la barra inferior.
+- Al pasar el cursor por los planetas se muestran diámetro, lunas conocidas, temperatura representativa, composición y masa. En gigantes gaseosos la temperatura indicada corresponde a la capa de nubes, no a una superficie sólida.
+- Se muestran marcadores esquemáticos de algunos satélites artificiales terrestres (ISS, Hubble, GPS y otros) y de Voyager 1. Sus órbitas y posiciones son ilustrativas: no son efemérides ni seguimiento en directo.
+- Las lunas representadas de Saturno se sitúan fuera del borde exterior de los anillos para evitar que sus órbitas los atraviesen visualmente.
+- La densidad estelar de la representación de la Vía Láctea se ha incrementado. Sigue siendo una visualización procedural, no un mapa de posiciones estelares medido.
+- El modo **Tiempo real** hace avanzar el reloj orbital a un segundo simulado por segundo real. No sincroniza posiciones de sondas ni satélites con telemetría externa.
