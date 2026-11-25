@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 
 const root = process.cwd();
 const source = await readFile(resolve(root, "index.html"), "utf8");
-const match = source.match(/<script type="module">([\\s\\S]*?)<\\/script>/i);
+const match = source.match(/<script type="module">([\s\S]*?)<\/script>/i);
 if (!match) throw new Error("No se encontró el módulo principal de index.html");
 
 const result = await build({
@@ -23,9 +23,9 @@ const result = await build({
 });
 
 const bundled = result.outputFiles[0].text;
-let output = source
-  .replace(/<script type="importmap">[\\s\\S]*?<\\/script>\\s*/i, "")
-  .replace(match[0], "<script>\\n" + bundled + "\\n</script>");
+const output = source
+  .replace(/<script type="importmap">[\s\S]*?<\/script>\s*/i, "")
+  .replace(match[0], "<script>\n" + bundled + "\n</script>");
 
 const outDir = resolve(root, "dist/Simulador-Orbital-SO");
 await mkdir(outDir, { recursive: true });
