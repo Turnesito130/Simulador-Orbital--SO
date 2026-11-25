@@ -23,23 +23,13 @@ jobs:
         run: npm install --no-save three@0.160.0 esbuild
       - name: Crear versión autocontenida
         run: node scripts/build-offline.mjs
-      - name: Comprobar HTML, JavaScript y ausencia de CDN
+      - name: Comprobar bundle JavaScript local y ausencia de CDN
         run: |
           test -s dist/Simulador-Orbital-SO/index.html
+          test -s dist/Simulador-Orbital-SO/app.js
           ! grep -q 'cdn.jsdelivr.net' dist/Simulador-Orbital-SO/index.html
-          python3 - <<'PY'
-          from pathlib import Path
-          html = Path("dist/Simulador-Orbital-SO/index.html").read_text()
-          assert html.count("</script>") == 1, "Hay un cierre de script inesperado dentro del bundle"
-          start = html.find("<script>")
-          end = html.rfind("</script>")
-          assert start >= 0 and end > start, "No se encontró el módulo autocontenido"
-          script = html[start + len("<script>"):end]
-          Path("/tmp/so-bundle-check.js").write_text(script)
-          print("HTML válido: un único cierre de script.")
-          print("HTML válido: un único script autocontenido.")
-          PY
-          node --check /tmp/so-bundle-check.js
+          grep -q '<script src="./app.js"></script>' dist/Simulador-Orbital-SO/index.html
+          node --check dist/Simulador-Orbital-SO/app.js
       - name: Publicar ZIP descargable
         uses: actions/upload-artifact@v4
         with:
