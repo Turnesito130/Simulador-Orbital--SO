@@ -4,7 +4,9 @@ Simulador 3D interactivo en desarrollo para explorar el Sistema Solar, misiones 
 
 ## Abrirlo localmente
 
-Abre `index.html` en un navegador moderno con conexión a Internet. La escena 3D utiliza Three.js desde jsDelivr, por lo que necesita conexión para cargar las bibliotecas. **La versión actual todavía no funciona sin conexión.**
+**ZIP descargable para Chromebook (recomendado):** descarga el artefacto `Simulador-Orbital-SO-Chromebook` de la ejecución más reciente de GitHub Actions, extrae todos sus archivos en la misma carpeta y abre `index.html`. El paquete incluye `app.js` con Three.js incorporado localmente, por lo que la simulación no necesita Internet para cargar el motor 3D. No separes ni borres `app.js`.
+
+**Código fuente del repositorio:** el `index.html` original utiliza un import map de jsDelivr para desarrollar y probar desde la web; abrir ese archivo fuente directamente sí requiere conexión. El ZIP generado por Actions elimina esa dependencia externa.
 
 ## Controles
 
