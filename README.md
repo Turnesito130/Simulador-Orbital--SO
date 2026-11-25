@@ -39,3 +39,8 @@ Esta es una primera maqueta funcional, no una efeméride de precisión. Las dist
 
 
 Última corrección de cámara: el zoom puede dirigirse al cursor y seleccionar cuerpos para centrar el objetivo.
+
+
+## Mejoras visuales recientes
+
+Se han mejorado las texturas procedurales de los planetas, la atmósfera y nubes de la Tierra, los anillos de Saturno, el resplandor solar y la densidad visual del campo estelar y de la Vía Láctea. Son recursos gráficos generados localmente para el simulador; no equivalen a mapas de observación científica.
