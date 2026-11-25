@@ -1,6 +1,6 @@
 # Simulador Orbital — SO
 
-Simulador 3D interactivo en desarrollo para explorar el Sistema Solar, misiones espaciales y una representación esquemática de la Vía Láctea.
+Simulador 3D interactivo en desarrollo para explorar el Sistema Solar, misiones espaciales y una representación visual de la Vía Láctea.
 
 ## Abrirlo localmente
 
@@ -11,7 +11,7 @@ Abre `index.html` en un navegador moderno con conexión a Internet. La escena 3D
 - Arrastrar: rotar la cámara.
 - Rueda del ratón: acercar y alejar.
 - Botones de planetas: centrar la cámara y consultar datos.
-- Velocidad: cambiar el paso del tiempo simulado.
+- Botón **Opciones**: desplegar u ocultar los controles para dejar libre la vista.\n- Velocidad: cambiar el paso del tiempo simulado.
 - Sistema Solar / Vía Láctea: cambiar de escala.
 - Misiones espaciales: abrir el catálogo, buscar por nombre/destino y consultar fichas.
 
@@ -27,7 +27,7 @@ El flujo de GitHub Actions de `.github/workflows/deploy.yml` publica esta rama e
 
 ## Estado científico y limitaciones
 
-Esta es una primera maqueta funcional, no una efeméride de precisión. Las distancias y radios visuales están comprimidos; varias lunas son representaciones ilustrativas; la Vía Láctea y la curvatura del espacio-tiempo son esquemáticas. El catálogo de misiones no muestra posiciones actuales calculadas ni debe utilizarse para navegación. No debe utilizarse para cálculos astronómicos precisos.
+Esta es una primera maqueta funcional, no una efeméride de precisión. Las distancias y radios visuales están comprimidos; las superficies planetarias usan texturas procedurales ilustrativas, no fotografías ni mapas científicos; varias lunas son representaciones ilustrativas; el cinturón de asteroides representa una población enorme mediante puntos; la Vía Láctea tiene una estructura espiral visual esquemática y la curvatura del espacio-tiempo no es un cálculo relativista. El catálogo de misiones no muestra posiciones actuales calculadas ni debe utilizarse para navegación. No debe utilizarse para cálculos astronómicos precisos.
 
 ## Próximas mejoras
 
