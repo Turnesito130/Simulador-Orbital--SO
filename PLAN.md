@@ -75,6 +75,24 @@ Crear un simulador astronómico interactivo que pueda descargarse como ZIP desde
 - Las escalas visuales pueden comprimirse para facilitar la exploración, pero deben estar identificadas.
 - Cada conjunto de datos debe conservar fuente, fecha y nivel de confianza.
 
+
+## 6. Cielo estrellado real y constelaciones
+
+- Incorporar un catálogo astronómico local de estrellas reales con identificadores, coordenadas celestes, magnitud y distancia cuando estén disponibles.
+- Usar un catálogo estelar reconocido (por ejemplo, Gaia para astrometría y un catálogo práctico derivado para la distribución local); conservar atribución, versión y licencia.
+- Representar las posiciones en 3D cuando exista distancia fiable; si solo hay posición angular, situar la estrella en una esfera celeste y marcar que su profundidad no es conocida.
+- Incluir las 88 constelaciones oficiales reconocidas por la Unión Astronómica Internacional y sus límites oficiales.
+- Al pasar el cursor por una estrella: mostrar nombre o identificador, magnitud, distancia y constelación asociada, si esos datos existen.
+- Al hacer clic en una estrella: abrir su ficha con los datos conocidos y permitir consultar la constelación.
+- Al hacer clic en una constelación: mostrar nombre, abreviatura, zona del cielo, estrellas principales, objetos destacados y descripción.
+- Dibujar líneas de constelación solo como convención visual, diferenciándolas de los límites oficiales.
+- Diseñar el catálogo por niveles: incluir en el ZIP inicial un conjunto estelar manejable y útil sin Internet; permitir paquetes de datos adicionales para catálogos mucho mayores. No intentar incluir los 1.800 millones de fuentes Gaia en el ZIP básico.
+- Permitir que SO muestre solo estrellas reales del catálogo cargado; no generar estrellas aleatorias que puedan confundirse con datos científicos.
+
+### Datos y límites del catálogo estelar
+
+Gaia DR3 contiene más de 1.8 mil millones de fuentes, por lo que descargarlo entero no es práctico para el paquete básico de ChromeOS. Se usará un catálogo local optimizado y se documentará su límite de magnitud/número de estrellas. El diseño permitirá ampliar el catálogo con paquetes adicionales sin conexión.
+
 ## Estado inicial
 
 La rama de desarrollo contiene un primer prototipo visual. Todavía depende de Three.js desde Internet y sus datos son parciales y esquemáticos. Por tanto, **todavía no cumple el requisito de uso sin conexión ni debe considerarse una versión científica completa**.
