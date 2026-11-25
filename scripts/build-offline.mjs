@@ -23,15 +23,14 @@ const result = await build({
 });
 
 const bundled = result.outputFiles[0].text;
-// Evita que una cadena/comentario del bundle cierre prematuramente el elemento script HTML.
-const safeBundled = bundled.replace(/<\/script/gi, "<\\/script");
 const output = source
   .replace(/<script type="importmap">[\s\S]*?<\/script>\s*/i, "")
-  .replace(match[0], "<script>\n" + safeBundled + "\n</script>");
+  .replace(match[0], '<script src="./app.js"></script>');
 
 const outDir = resolve(root, "dist/Simulador-Orbital-SO");
 await mkdir(outDir, { recursive: true });
 await writeFile(resolve(outDir, "index.html"), output, "utf8");
+await writeFile(resolve(outDir, "app.js"), bundled, "utf8");
 await copyFile(resolve(root, "README.md"), resolve(outDir, "LEEME.txt"));
 await copyFile(resolve(root, "PLAN.md"), resolve(outDir, "PLAN.txt"));
 console.log("Paquete autocontenido creado en dist/Simulador-Orbital-SO");
