@@ -45,9 +45,11 @@ const textureFiles = [
 ];
 const textureDir = resolve(outDir, "assets/textures");
 await mkdir(textureDir, { recursive: true });
+const textureMirror = "https://raw.githubusercontent.com/elymas/solar-simulator/d34a9f973a7c4ad683eeb7d080b0accaba81e840/public/textures";
 for (const filename of textureFiles) {
-  const url = `https://spaceengine.solarsystemscope.com/textures/download/${filename}`;
-  const response = await fetch(url, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (planetary-map-packaging)", "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" } });
+  // Espejo versionado de los mapas Solar System Scope (CC BY 4.0); se fija el commit para builds reproducibles.
+  const url = `${textureMirror}/${filename}`;
+  const response = await fetch(url, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (planetary-map-packaging)", "Accept": "image/*,*/*;q=0.8" } });
   if (!response.ok) throw new Error(`No se pudo descargar el mapa ${filename}: HTTP ${response.status}`);
   const bytes = Buffer.from(await response.arrayBuffer());
   if (!response.headers.get("content-type")?.startsWith("image/") || bytes.length < 1000) throw new Error(`Respuesta inválida para ${filename}: tipo=${response.headers.get("content-type")}, bytes=${bytes.length}, url=${response.url}`);
