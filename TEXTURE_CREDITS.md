@@ -1,6 +1,6 @@
 # Fuentes y licencia de los mapas planetarios
 
-Los mapas equirectangulares incluidos en el paquete del Simulador Orbital se descargan desde Solar System Scope:
+Los mapas equirectangulares incluidos en el paquete del Simulador Orbital proceden de Solar System Scope. Para que las compilaciones no dependan de que el servidor de descargas original esté disponible, el proceso de empaquetado los obtiene de un espejo versionado de los mismos archivos (commit fijado) en `elymas/solar-simulator`; el README de ese espejo declara expresamente Solar System Scope y CC BY 4.0. El espejo se usa solo como transporte de los mapas, no como fuente de datos astronómicos:
 
 - Catálogo y descargas: https://play.solarsystemscope.com/textures/
 - Licencia declarada por el proveedor: Creative Commons Attribution 4.0 International (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
