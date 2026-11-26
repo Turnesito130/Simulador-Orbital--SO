@@ -369,12 +369,12 @@ function updateWarpSurface(){
 // Vecindario estelar local: burbuja visual de miles de estrellas alrededor del Sol.
 const localBubbleGroup=new THREE.Group();scene.add(localBubbleGroup);localBubbleGroup.visible=false;
 const localStarPositions=[],localStarColors=[];
-for(let i=0;i<10500;i++){const u=THREE.MathUtils.randFloatSpread(2),a=Math.random()*Math.PI*2,q=Math.sqrt(1-u*u),shell=Math.random()<.76,r=shell?THREE.MathUtils.randFloat(54,80):Math.cbrt(Math.random())*48;localStarPositions.push(r*q*Math.cos(a),r*u*.72,r*q*Math.sin(a));const warm=Math.random();localStarColors.push(warm>.78?1:.62+Math.random()*.32,warm>.78?.78:.72+Math.random()*.24,warm>.78?.52:.88+Math.random()*.12);}
+for(let i=0;i<10500;i++){const u=THREE.MathUtils.randFloatSpread(2),a=Math.random()*Math.PI*2,q=Math.sqrt(1-u*u),shell=Math.random()<.76,r=shell?THREE.MathUtils.randFloat(54,80):Math.cbrt(Math.random())*48;localStarPositions.push(r*q*Math.cos(a),r*u,r*q*Math.sin(a));const warm=Math.random();localStarColors.push(warm>.78?1:.62+Math.random()*.32,warm>.78?.78:.72+Math.random()*.24,warm>.78?.52:.88+Math.random()*.12);}
 const localStarGeo=new THREE.BufferGeometry();localStarGeo.setAttribute('position',new THREE.Float32BufferAttribute(localStarPositions,3));localStarGeo.setAttribute('color',new THREE.Float32BufferAttribute(localStarColors,3));
 const localSun=new THREE.Mesh(new THREE.SphereGeometry(2.3,32,24),new THREE.MeshBasicMaterial({color:0xffe39a}));localSun.userData={name:'Sol',kind:'local-sun'};localBubbleGroup.add(localSun);const localSunGlow=new THREE.Mesh(new THREE.SphereGeometry(4.5,24,16),new THREE.MeshBasicMaterial({color:0xffc56b,transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false}));localSun.add(localSunGlow);
-localBubbleGroup.add(new THREE.Points(localStarGeo,new THREE.PointsMaterial({vertexColors:true,size:1.55,sizeAttenuation:true,transparent:true,opacity:.95,depthWrite:false})));
-const bubbleShell=new THREE.Mesh(new THREE.SphereGeometry(82,64,48),new THREE.MeshBasicMaterial({color:0x78baff,wireframe:true,transparent:true,opacity:.055,depthWrite:false}));bubbleShell.scale.set(1,.72,1);localBubbleGroup.add(bubbleShell);
-const localGlow=new THREE.Mesh(new THREE.SphereGeometry(80,48,32),new THREE.MeshBasicMaterial({color:0x3979bd,side:THREE.BackSide,transparent:true,opacity:.065,depthWrite:false}));localGlow.scale.y=.72;localBubbleGroup.add(localGlow);
+localBubbleGroup.add(new THREE.Points(localStarGeo,new THREE.PointsMaterial({vertexColors:true,size:1.7,sizeAttenuation:true,transparent:true,opacity:.98,depthWrite:false})));
+const bubbleShell=new THREE.Mesh(new THREE.SphereGeometry(82,64,48),new THREE.MeshBasicMaterial({color:0x78baff,wireframe:true,transparent:true,opacity:.055,depthWrite:false}));bubbleShell.scale.set(1,1,1);bubbleShell.material.depthTest=false;bubbleShell.renderOrder=2;localBubbleGroup.add(bubbleShell);
+const localGlow=new THREE.Mesh(new THREE.SphereGeometry(80,48,32),new THREE.MeshBasicMaterial({color:0x3979bd,side:THREE.BackSide,transparent:true,opacity:.065,depthWrite:false}));localGlow.scale.set(1,1,1);localGlow.material.depthTest=false;localGlow.renderOrder=1;localBubbleGroup.add(localGlow);
 // Vía Láctea: disco visto desde arriba, barra central, bulbo y brazos espirales con polvo y estrellas distribuidas por todo el disco.
 const galaxyGroup=new THREE.Group();scene.add(galaxyGroup);
 const bulge=new THREE.Mesh(new THREE.SphereGeometry(25,48,32),new THREE.MeshBasicMaterial({color:0xffc982,transparent:true,opacity:.28,depthWrite:false}));bulge.scale.set(1,.22,1);galaxyGroup.add(bulge);
@@ -413,7 +413,7 @@ nearbyMarkerLayout.forEach((offset,index)=>{const marker=new THREE.Mesh(new THRE
 const localSystemMarkers=[];nearbyMarkerLayout.forEach((offset,index)=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(1.45,24,18),new THREE.MeshBasicMaterial({color:0x8bd7ff}));marker.position.set(...offset);marker.userData={stellarSystemIndex:index,name:['Próxima Centauri','Estrella de Barnard','Ross 128','GJ 1061','YZ Ceti','Estrella de Teegarden','Wolf 1061','GJ 1002','GJ 273'][index],kind:'nearby-system'};localBubbleGroup.add(marker);localSystemMarkers.push(marker);const glow=new THREE.Mesh(new THREE.SphereGeometry(2.5,16,12),new THREE.MeshBasicMaterial({color:0x55baff,transparent:true,opacity:.2,blending:THREE.AdditiveBlending,depthWrite:false}));marker.add(glow);});
 // Sagitario A*: representación visual estilizada, no a escala ni un trazado relativista exacto.
 const blackHole=new THREE.Mesh(new THREE.SphereGeometry(3.15,96,64),new THREE.MeshBasicMaterial({color:0x000000}));
-blackHole.renderOrder=12;blackHole.material.depthWrite=true;blackHole.material.depthTest=true;galaxyGroup.add(blackHole);
+blackHole.renderOrder=30;blackHole.material.depthWrite=false;blackHole.material.depthTest=false;galaxyGroup.add(blackHole);
 // Disco de acreción: textura procedural con filamentos turbulentos y gradiente térmico.
 const diskCanvas=document.createElement('canvas');diskCanvas.width=1024;diskCanvas.height=256;
 const dctx=diskCanvas.getContext('2d');
@@ -435,24 +435,24 @@ for(let y=0;y<diskCanvas.height;y++){
 }
 dctx.putImageData(diskImage,0,0);
 const diskTexture=new THREE.CanvasTexture(diskCanvas);diskTexture.colorSpace=THREE.SRGBColorSpace;
-const diskMaterial=new THREE.MeshBasicMaterial({map:diskTexture,side:THREE.DoubleSide,transparent:true,opacity:.96,blending:THREE.AdditiveBlending,depthWrite:false});
+const diskMaterial=new THREE.MeshBasicMaterial({map:diskTexture,side:THREE.DoubleSide,transparent:true,opacity:.96,blending:THREE.AdditiveBlending,depthWrite:false,depthTest:false});
 const accretionDisk=new THREE.Mesh(new THREE.RingGeometry(3.55,13.5,256,8),diskMaterial);
 accretionDisk.rotation.x=Math.PI/2;accretionDisk.scale.set(1,.38,1);accretionDisk.renderOrder=10;galaxyGroup.add(accretionDisk);
 // Anillo de fotones: borde luminoso fino alrededor de la sombra negra.
 const photonRing=new THREE.Mesh(new THREE.TorusGeometry(3.42,.105,16,192),new THREE.MeshBasicMaterial({color:0xffd49a,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));
-photonRing.rotation.x=Math.PI/2;photonRing.renderOrder=13;galaxyGroup.add(photonRing);
+photonRing.rotation.x=Math.PI/2;photonRing.renderOrder=32;photonRing.material.depthTest=false;galaxyGroup.add(photonRing);
 // Arco superior brillante: recurso visual para sugerir la lente gravitacional.
 const lensedArc=new THREE.Mesh(new THREE.TorusGeometry(4.05,.16,12,160,Math.PI*1.08),new THREE.MeshBasicMaterial({color:0xffa34d,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));
-lensedArc.rotation.set(Math.PI/2-.22,0,Math.PI*.46);lensedArc.position.y=1.05;lensedArc.renderOrder=14;galaxyGroup.add(lensedArc);
+lensedArc.rotation.set(Math.PI/2-.22,0,Math.PI*.46);lensedArc.position.y=1.05;lensedArc.renderOrder=33;lensedArc.material.depthTest=false;galaxyGroup.add(lensedArc);
 // Halo tenue, más oscuro en el centro y luminoso en el borde.
 const haloCanvas=document.createElement('canvas');haloCanvas.width=256;haloCanvas.height=256;
 const hctx=haloCanvas.getContext('2d');const hg=hctx.createRadialGradient(128,128,48,128,128,126);
 hg.addColorStop(0,'rgba(0,0,0,0)');hg.addColorStop(.48,'rgba(20,10,8,0)');hg.addColorStop(.72,'rgba(255,125,48,.12)');hg.addColorStop(.88,'rgba(255,170,95,.08)');hg.addColorStop(1,'rgba(255,170,95,0)');
 hctx.fillStyle=hg;hctx.fillRect(0,0,256,256);
 const haloSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(haloCanvas),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
-haloSprite.scale.set(34,34,1);haloSprite.renderOrder=9;galaxyGroup.add(haloSprite);
+haloSprite.scale.set(34,34,1);haloSprite.renderOrder=29;haloSprite.material.depthTest=false;galaxyGroup.add(haloSprite);
 const bhLabelCanvas=document.createElement('canvas');bhLabelCanvas.width=512;bhLabelCanvas.height=96;const bhctx=bhLabelCanvas.getContext('2d');bhctx.font='bold 42px Arial';bhctx.fillStyle='#ffe3b6';bhctx.textAlign='center';bhctx.fillText('SAGITARIO A*',256,58);
-const bhLabel=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(bhLabelCanvas),transparent:true,depthWrite:false}));bhLabel.position.set(0,16,0);bhLabel.scale.set(34,6.4,1);galaxyGroup.add(bhLabel);
+const bhLabel=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(bhLabelCanvas),transparent:true,depthWrite:false}));bhLabel.position.set(0,16,0);bhLabel.scale.set(34,6.4,1);bhLabel.renderOrder=34;bhLabel.material.depthTest=false;galaxyGroup.add(bhLabel);
 galaxyGroup.visible=false;
 // Catálogo celeste: patrones de estrellas brillantes con coordenadas ecuatoriales J2000 aproximadas.
 // La esfera celeste es una proyección de direcciones; no representa distancias físicas entre estrellas.
@@ -722,7 +722,7 @@ function syncPlanetEditor(o){if(!o)return;document.querySelector('#editAU').valu
 function updateScaleMode(){const distance=camera.position.distanceTo(controls.target);if(mode==='solar'&&distance>155)setMode('local',true);else if(mode==='local'&&distance>355)setMode('galaxy',true);else if(mode==='galaxy'&&distance<295)setMode('local',true);else if(mode==='local'&&distance<118)setMode('solar',true);}
 
 function animate(now){if(document.hidden)return;const dt=Math.min((now-last)/1000,.08);last=now;moveFreely(dt);if(mode==='solar'||mode==='local'||mode==='galaxy')updateScaleMode();updateStellarTravel(dt);if(mode==='lab'){if(!paused)updateLab(dt);}else if(!paused){elapsed+=dt*speedValue();if(mode==='solar'){planetObjects.forEach(o=>{const period=o.d[2],ecc=o.d[8]||0,inc=(o.d[9]||0)*Math.PI/180,mean=((elapsed/period)*Math.PI*2+(o.phaseOffset||0))%(Math.PI*2),E=solveKepler(mean,ecc),a=o.r;o.pivot.rotation.x=inc;o.mesh.position.set(a*(Math.cos(E)-ecc),0,a*Math.sqrt(1-ecc*ecc)*Math.sin(E));o.mesh.rotation.y=elapsed*.03;if(o.mesh.userData.clouds)o.mesh.userData.clouds.rotation.y=elapsed*.034;o.moonGroup.children.forEach(m=>{if(m.isMesh){const phase=elapsed/m.userData.period* Math.PI*2;m.position.set(Math.cos(phase)*m.userData.r,0,Math.sin(phase)*m.userData.r)}});if(o.mesh.userData.artificial)o.mesh.userData.artificial.children.forEach(x=>{if(x.isMesh||x.isGroup){const phase=now/1000*x.userData.rate+x.userData.phase;x.position.set(Math.cos(phase)*x.userData.radius,0,Math.sin(phase)*x.userData.radius)}})});}else{const galacticPeriod=230e6*365.25;const a=elapsed/galacticPeriod*Math.PI*2;sunMarker.position.set(Math.cos(a)*125,0,Math.sin(a)*125)}}
-voyagerMarker.rotation.y=now*.00025;if(mode==='solar'){updateWarpSurface();updateAsteroidOrbits(elapsed);smallBodyObjects.forEach(o=>{const a=o.phase+elapsed/o.d.period*Math.PI*2,r=o.orbitRadius;o.mesh.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.mesh.rotation.set(elapsed*.0003,elapsed*.0005,0);});}beltGroup.rotation.y=0;kuiperGroup.rotation.y=elapsed*.000012;sun.rotation.y=elapsed*.0009;sunCore.rotation.y=-elapsed*.0014;flareGroup.rotation.y=elapsed*.00012;sunHalo.material.rotation=elapsed*.000035;if(visorTarget&&mode==='solar'){const p=visorTarget.getWorldPosition(new THREE.Vector3());const delta=p.clone().sub(controls.target);camera.position.add(delta);controls.target.copy(p);}controls.update();renderer.render(scene,camera);requestAnimationFrame(animate)}
+if(mode==='galaxy')localBubbleGroup.position.copy(sunMarker.position);voyagerMarker.rotation.y=now*.00025;if(mode==='solar'){updateWarpSurface();updateAsteroidOrbits(elapsed);smallBodyObjects.forEach(o=>{const a=o.phase+elapsed/o.d.period*Math.PI*2,r=o.orbitRadius;o.mesh.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.mesh.rotation.set(elapsed*.0003,elapsed*.0005,0);});}beltGroup.rotation.y=0;kuiperGroup.rotation.y=elapsed*.000012;sun.rotation.y=elapsed*.0009;sunCore.rotation.y=-elapsed*.0014;flareGroup.rotation.y=elapsed*.00012;sunHalo.material.rotation=elapsed*.000035;if(visorTarget&&mode==='solar'){const p=visorTarget.getWorldPosition(new THREE.Vector3());const delta=p.clone().sub(controls.target);camera.position.add(delta);controls.target.copy(p);}controls.update();renderer.render(scene,camera);requestAnimationFrame(animate)}
 
 
 // Sistemas destacados de referencia; el catálogo completo se carga desde NASA Exoplanet Archive (PSCompPars). Periodos en días.
