@@ -27,6 +27,11 @@ jobs:
         run: |
           test -s dist/Simulador-Orbital-SO/index.html
           test -s dist/Simulador-Orbital-SO/app.js
+          test -s dist/Simulador-Orbital-SO/assets/textures/2k_earth_daymap.jpg
+          test -s dist/Simulador-Orbital-SO/assets/textures/2k_mars.jpg
+          test -s dist/Simulador-Orbital-SO/assets/textures/2k_jupiter.jpg
+          test -s dist/Simulador-Orbital-SO/assets/textures/2k_saturn_ring_alpha.png
+          test -s dist/Simulador-Orbital-SO/FUENTES-TEXTURAS.txt
           ! grep -q 'cdn.jsdelivr.net' dist/Simulador-Orbital-SO/index.html
           grep -q '<script src="./app.js"></script>' dist/Simulador-Orbital-SO/index.html
           node --check dist/Simulador-Orbital-SO/app.js
