@@ -211,7 +211,9 @@ const data=[
 const planetObjects=[];const orbitGroup=new THREE.Group();solarGroup.add(orbitGroup);const satellitePickables=[];let voyagerMarker=null;
 // Escala física del Sistema Solar: 1 UA = 100 unidades de escena.
 function orbitRadius(au){return au*100}
-data.forEach((d,i)=>{const [name,au,period,visualSize,color,type,moons,moonNames]=d;const physicalRadius=physicalData[name].diameter/1391400*.5;const size=Math.max(physicalRadius,visualSize*.04); // Exageración visual moderada para que los planetas sigan siendo visibles a escala del sistema.const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const surfaceTexture=makePlanetTexture(name,color);
+data.forEach((d,i)=>{const [name,au,period,visualSize,color,type,moons,moonNames]=d;const physicalRadius=physicalData[name].diameter/1391400*.5;const size=Math.max(physicalRadius,visualSize*.04);
+// Exageración visual moderada para que los planetas sigan siendo visibles a escala del sistema.
+const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const surfaceTexture=makePlanetTexture(name,color);
 // Geometría de alta resolución y material físico ajustado a cada tipo de mundo.
 const surfaceQuality={
  'Mercurio':{roughness:.96,clearcoat:0},
