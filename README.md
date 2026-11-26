@@ -88,3 +88,16 @@ La vista incluye un laboratorio independiente para crear cuerpos con masa (en ma
 Los satélites artificiales de ejemplo se representan con geometría 3D (bus, antena y paneles solares). Algunas lunas destacadas tienen modelos 3D y nombre. Se incluyen modelos 3D identificados de Ceres, Vesta, Pallas, Hygiea, Bennu, Ryugu, 67P y Halley; el cinturón adicional usa rocas procedurales de aspecto irregular, no asteroides individualmente catalogados. El catálogo completo de cientos de satélites naturales y millones de pequeños cuerpos requiere integrar catálogos y efemérides JPL/Horizons, y no se presenta como completado en esta versión.
 
 Referencias para la siguiente ampliación del catálogo: [JPL Solar System Dynamics](https://ssd.jpl.nasa.gov/), [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/manual.html) y [NASA Eyes on the Solar System](https://science.nasa.gov/eyes/). JPL publica catálogos de cuerpos y efemérides; las posiciones exactas deben obtenerse para una fecha concreta, no inferirse de los dibujos orbitales simplificados.
+
+
+## Exploración de sistemas estelares cercanos
+
+La rama `desarrollo/primera-version` incorpora un modo 3D para recorrer Próxima Centauri, la estrella de Barnard y Ross 128 con navegación anterior/siguiente y transición de cámara. Los planetas confirmados se distinguen de los candidatos (por ejemplo, Próxima Centauri c).
+
+- **Próxima Centauri:** b y d confirmados; c se muestra aparte como candidato.
+- **Estrella de Barnard:** b, c, d y e según las soluciones de Basant et al. (2025) recogidas por NASA Exoplanet Archive.
+- **Ross 128:** b confirmado.
+
+No se dibujan exolunas ni cinturones como si estuvieran confirmados: se informa cuando no hay detecciones/caracterización. Las órbitas usan los parámetros publicados disponibles; las fases, orientación orbital y escalas visuales son esquemáticas cuando faltan elementos. Las masas por velocidad radial son masas mínimas (M·sen i), no masas verdaderas medidas.
+
+Fuentes de consulta: [NASA Exoplanet Archive — Próxima Centauri](https://exoplanetarchive.ipac.caltech.edu/overview/proxima%20centauri), [NASA Exoplanet Archive — Barnard's Star](https://exoplanetarchive.ipac.caltech.edu/overview/barnard%20star), [NASA Exoplanet Archive — Ross 128 b](https://exoplanetarchive.ipac.caltech.edu/overview/ross%20128%20b).
