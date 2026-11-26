@@ -205,7 +205,8 @@ const data=[
 ['Plutón',39.482,90560,0.32,0xb9a18c,'Planeta enano','5','Caronte, Nix, Hidra…',.2488,17.16]
 ];
 const planetObjects=[];const orbitGroup=new THREE.Group();solarGroup.add(orbitGroup);const satellitePickables=[];let voyagerMarker=null;
-// Escala física del Sistema Solar: 1 UA = 100 unidades de escena.\nfunction orbitRadius(au){return au*100}
+// Escala física del Sistema Solar: 1 UA = 100 unidades de escena.
+function orbitRadius(au){return au*100}
 data.forEach((d,i)=>{const [name,au,period,visualSize,color,type,moons,moonNames]=d;const size=physicalData[name].diameter/1391400*.5;const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const surfaceTexture=makePlanetTexture(name,color);
 // Geometría de alta resolución y material físico ajustado a cada tipo de mundo.
 const surfaceQuality={
