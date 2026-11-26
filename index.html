@@ -127,9 +127,10 @@ const realPlanetMaps={
  'Urano':'2k_uranus.jpg','Neptuno':'2k_neptune.jpg'
 };
 const realTextureLoader=new THREE.TextureLoader();
-function loadRealTexture(file,onReady){
+function loadRealTexture(file,onReady,remoteUrl){
  const apply=texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());texture.generateMipmaps=true;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;onReady(texture);};
- realTextureLoader.load('./assets/textures/'+file,apply,undefined,()=>realTextureLoader.load('https://spaceengine.solarsystemscope.com/textures/download/'+file,apply,undefined,()=>{}));
+ const fallback=remoteUrl||('https://spaceengine.solarsystemscope.com/textures/download/'+file);
+ realTextureLoader.load('./assets/textures/'+file,apply,undefined,()=>realTextureLoader.load(fallback,apply,undefined,err=>console.warn('No se pudo cargar el mapa '+file,err)));
 }
 function makePlanetTexture(name,baseColor){
  // Respaldo offline determinista: evita esferas negras si el ZIP no contiene mapas externos.
@@ -212,7 +213,7 @@ if(realPlanetMaps[name])loadRealTexture(realPlanetMaps[name],t=>{mesh.material.m
 if(name==='Marte'){
  // Relieve MOLA de NASA/GSFC (mapa global equirectangular con sombreado).
  // Es una visualización topográfica, no un DEM bruto; se usa con intensidad moderada.
- realTextureLoader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004400/a004436/mars_cyl_topo2.jpg',t=>{
+ loadRealTexture('mars_cyl_topo2.jpg',t=>{
   t.colorSpace=THREE.NoColorSpace;
   t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   mesh.material.bumpMap=t;
@@ -240,8 +241,8 @@ const moonMaps=makeMoonSurfaceMaps(moonName,moonBase);
 const moonMaterial=new THREE.MeshStandardMaterial({map:moonMaps.color,bumpMap:moonMaps.bump,bumpScale:Math.max(.018,size*.018),color:0xffffff,roughness:.96,metalness:0});
 if(moonName==='Luna'){
  // Cartografía real LROC y relieve LOLA publicados por NASA SVS (resolución 2K/1K).
- realTextureLoader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_2k.jpg',t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());moonMaterial.map=t;moonMaterial.color.set(0xffffff);moonMaterial.needsUpdate=true;});
- realTextureLoader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_3_8bit.jpg',t=>{moonMaterial.bumpMap=t;moonMaterial.bumpScale=Math.max(.035,size*.055);moonMaterial.needsUpdate=true;});
+ loadRealTexture('lroc_color_2k.jpg',t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());moonMaterial.map=t;moonMaterial.color.set(0xffffff);moonMaterial.needsUpdate=true;});
+ loadRealTexture('ldem_3_8bit.jpg',t=>{moonMaterial.bumpMap=t;moonMaterial.bumpScale=Math.max(.035,size*.055);moonMaterial.needsUpdate=true;});
 }
 const moon=new THREE.Mesh(moonGeo,moonMaterial);
 moon.userData={kind:'moon',name:moonName,fact:'Luna natural real de '+name+'. Distancia y órbita en esta vista esquemáticas; no es una efeméride de precisión.'};moon.position.x=mr;moonGroup.add(moon);satellitePickables.push(moon);const pts=[];for(let k=0;k<=48;k++){const a=k/48*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*mr,0,Math.sin(a)*mr))}moonGroup.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x7890aa,transparent:true,opacity:.3})));moon.userData={...moon.userData,phase:m*2.2,r:mr,period:2.5+m*1.7}}}
