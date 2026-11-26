@@ -34,6 +34,8 @@ assert.match(main[2], /function clearStellarSystem\(\)[\s\S]*?geometry\.dispose\
 assert.match(main[2], /material\.dispose\(\)/, 'Al cambiar de sistema deben liberarse los materiales de GPU');
 assert.match(main[2], /stellarIndex=\(\(index%stellarSystemData\.length\)\+stellarSystemData\.length\)%stellarSystemData\.length/, 'La navegación circular debe admitir índices negativos y positivos');
 assert.match(main[2], /mode==='stellar'&&\(k==='arrowleft'\|\|k==='arrowright'\)/, 'Las flechas deben permitir cambiar de sistema directamente');
+assert.match(main[2], /stellarStarMesh&&raycaster\.intersectObject\(stellarStarMesh,false\)/, 'La estrella debe poder seleccionarse para recuperar su ficha');
+assert.match(main[2], /mode==='stellar'&&k==='escape'/, 'Escape debe salir del recorrido estelar');
 assert.ok((main[2].match(/\{name:/g)||[]).length >= 9, 'Debe haber datos para los nueve sistemas estelares');
 
 
