@@ -205,7 +205,7 @@ const data=[
 ['Plutón',39.482,90560,0.32,0xb9a18c,'Planeta enano','5','Caronte, Nix, Hidra…',.2488,17.16]
 ];
 const planetObjects=[];const orbitGroup=new THREE.Group();solarGroup.add(orbitGroup);const satellitePickables=[];let voyagerMarker=null;
-function orbitRadius(au){return 10+Math.log1p(au)*24}
+function orbitRadius(au){return 10+Math.log1p(au)*36}
 data.forEach((d,i)=>{const [name,au,period,size,color,type,moons,moonNames]=d;const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const surfaceTexture=makePlanetTexture(name,color);
 // Geometría de alta resolución y material físico ajustado a cada tipo de mundo.
 const surfaceQuality={
@@ -250,7 +250,7 @@ if(name==='Tierra'){
  const clouds=new THREE.Mesh(new THREE.SphereGeometry(size*1.014,144,96),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.48,roughness:1,depthWrite:false}));
  loadRealTexture('2k_earth_clouds.jpg',t=>{clouds.material.alphaMap=t;clouds.material.needsUpdate=true;});
  mesh.add(clouds);mesh.userData.clouds=clouds;
-}mesh.position.x=r;pivot.add(mesh);const ringPts=[],ecc=d[8]||0,inc=(d[9]||0)*Math.PI/180;for(let k=0;k<=256;k++){const M=k/256*Math.PI*2,E=solveKepler(M,ecc);ringPts.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));line.rotation.x=inc;orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.22,size*2.72,256),new THREE.MeshStandardMaterial({map:null,color:0xd9c69e,side:THREE.DoubleSide,transparent:true,opacity:.97,roughness:1,metalness:.04,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.rotation.z=THREE.MathUtils.degToRad(26.7);ring.position.x=r;pivot.add(ring);loadRealTexture('2k_saturn_ring_alpha.png',t=>{ring.material.alphaMap=t;ring.material.needsUpdate=true;});const ringGlow=new THREE.Mesh(new THREE.RingGeometry(size*2.74,size*2.9,192),new THREE.MeshBasicMaterial({color:0xe4d1a8,side:THREE.DoubleSide,transparent:true,opacity:.12,depthWrite:false}));ringGlow.rotation.x=Math.PI/2;ringGlow.rotation.z=THREE.MathUtils.degToRad(26.7);ringGlow.position.x=r;pivot.add(ringGlow)}
+}mesh.position.x=r;pivot.add(mesh);const ringPts=[],ecc=d[8]||0,inc=(d[9]||0)*Math.PI/180;for(let k=0;k<=256;k++){const M=k/256*Math.PI*2,E=solveKepler(M,ecc);ringPts.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));line.rotation.x=inc;orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.22,size*2.72,256),new THREE.MeshStandardMaterial({map:null,color:0xd9c69e,side:THREE.DoubleSide,transparent:true,opacity:.97,roughness:1,metalness:.04,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.rotation.z=THREE.MathUtils.degToRad(26.7);ring.position.set(0,0,0);mesh.add(ring);loadRealTexture('2k_saturn_ring_alpha.png',t=>{ring.material.alphaMap=t;ring.material.needsUpdate=true;});const ringGlow=new THREE.Mesh(new THREE.RingGeometry(size*2.74,size*2.9,192),new THREE.MeshBasicMaterial({color:0xe4d1a8,side:THREE.DoubleSide,transparent:true,opacity:.12,depthWrite:false}));ringGlow.rotation.x=Math.PI/2;ringGlow.rotation.z=THREE.MathUtils.degToRad(26.7);ringGlow.position.set(0,0,0);mesh.add(ringGlow)}
 const moonGroup=new THREE.Group();mesh.add(moonGroup);if(i===2||i===3||i===4||i===5||i===6||i===7||i===8){const count=i===2?1:i===3?2:i===4?4:i===5?4:i===6?3:i===7?1:1;for(let m=0;m<count;m++){const mr=name==='Saturno'?size*3.25+m*1.35:size+(m+1)*.55;const moonNames={Tierra:['Luna'],Marte:['Fobos','Deimos'],Júpiter:['Ío','Europa','Ganímedes','Calisto'],Saturno:['Encélado','Rea','Dione','Titán'],Urano:['Miranda','Ariel','Titania'],Neptuno:['Tritón'],Plutón:['Caronte']}[name]||['Satélite natural '+(m+1)];
 const moonName=moonNames[m]||moonNames[moonNames.length-1];
 const moonGeo=new THREE.SphereGeometry(Math.max(.09,size*.13),48,32);
@@ -598,7 +598,7 @@ function buildStellarSystem(index){
  const halo=new THREE.Mesh(new THREE.SphereGeometry(4.5,48,32),new THREE.MeshBasicMaterial({color:sys.starColor,transparent:true,opacity:.13,blending:THREE.AdditiveBlending,depthWrite:false}));stellarGroup.add(halo);
  const light=new THREE.PointLight(sys.starColor,950,0,1.8);stellarGroup.add(light);
  sys.planets.forEach((p,i)=>{
-  const r=8+Math.log1p(p.axis*100)*8;const ecc=p.e||0;const points=[];
+  const r=9+Math.log1p(p.axis*100)*16;const ecc=p.e||0;const points=[];
   for(let k=0;k<=240;k++){const M=k/240*Math.PI*2,E=solveKepler(M,ecc);points.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)));}
   const orbitMaterial=p.candidate?new THREE.LineDashedMaterial({color:0xffc45a,dashSize:.55,gapSize:.32,transparent:true,opacity:.8}):new THREE.LineBasicMaterial({color:0x79a9d2,transparent:true,opacity:.55});const orbit=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points),orbitMaterial);if(p.candidate)orbit.computeLineDistances();stellarGroup.add(orbit);
   const pivot=new THREE.Group();stellarGroup.add(pivot);
