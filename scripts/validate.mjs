@@ -37,6 +37,7 @@ assert.match(main[2], /mode==='stellar'&&\(k==='arrowleft'\|\|k==='arrowright'\)
 assert.match(main[2], /stellarStarMesh&&raycaster\.intersectObject\(stellarStarMesh,false\)/, 'La estrella debe poder seleccionarse para recuperar su ficha');
 assert.match(main[2], /mode==='stellar'\?\[\.\.\.\(stellarStarMesh/, 'El cursor debe detectar estrellas y planetas en el modo estelar');
 assert.match(main[2], /d\.kind==='stellar-planet'\?'Exoplaneta del sistema/, 'La tarjeta flotante debe explicar los exoplanetas');
+assert.match(main[2], /d\.kind==='stellar-star'\?'Estrella anfitriona/, 'La tarjeta flotante debe explicar la estrella anfitriona');
 assert.match(main[2], /mode==='stellar'&&k==='escape'/, 'Escape debe salir del recorrido estelar');
 const systemsBlock = main[2].match(/const stellarSystemData=\[([\s\S]*?)\n\];/);
 assert.ok(systemsBlock, 'Debe existir el catálogo de sistemas estelares');
