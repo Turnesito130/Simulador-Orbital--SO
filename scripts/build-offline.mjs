@@ -47,10 +47,10 @@ const textureDir = resolve(outDir, "assets/textures");
 await mkdir(textureDir, { recursive: true });
 for (const filename of textureFiles) {
   const url = `https://play.solarsystemscope.com/textures/download/${filename}`;
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (planetary-map-packaging)", "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" } });
   if (!response.ok) throw new Error(`No se pudo descargar el mapa ${filename}: HTTP ${response.status}`);
   const bytes = Buffer.from(await response.arrayBuffer());
-  if (bytes.length < 1000) throw new Error(`El mapa ${filename} parece incompleto`);
+  if (!response.headers.get("content-type")?.startsWith("image/") || bytes.length < 1000) throw new Error(`Respuesta inválida para ${filename}: tipo=${response.headers.get("content-type")}, bytes=${bytes.length}, url=${response.url}`);
   await writeFile(resolve(textureDir, filename), bytes);
   console.log(`Mapa incluido: ${filename} (${bytes.length} bytes)`);
 }
