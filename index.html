@@ -209,6 +209,17 @@ data.forEach((d,i)=>{const [name,au,period,size,color,type,moons,moonNames]=d;co
 const mesh=new THREE.Mesh(new THREE.SphereGeometry(size,96,64),new THREE.MeshStandardMaterial({map:surfaceTexture,color:color,roughness:name==='Tierra'?.86:.94,metalness:0}));
 mesh.rotation.z=(name==='Urano'?Math.PI/2:0);
 if(realPlanetMaps[name])loadRealTexture(realPlanetMaps[name],t=>{mesh.material.map=t;mesh.material.color.set(0xffffff);mesh.material.needsUpdate=true;});
+if(name==='Marte'){
+ // Relieve MOLA de NASA/GSFC (mapa global equirectangular con sombreado).
+ // Es una visualización topográfica, no un DEM bruto; se usa con intensidad moderada.
+ realTextureLoader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004400/a004436/mars_cyl_topo2.jpg',t=>{
+  t.colorSpace=THREE.NoColorSpace;
+  t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  mesh.material.bumpMap=t;
+  mesh.material.bumpScale=Math.max(.012,size*.035);
+  mesh.material.needsUpdate=true;
+ },undefined,err=>console.warn('No se pudo cargar el relieve MOLA de Marte:',err));
+}
 mesh.castShadow=true;mesh.receiveShadow=true;
 if(['Tierra','Venus','Marte','Júpiter','Saturno','Urano','Neptuno'].includes(name)){
  const atmosphereColor={Tierra:0x4daaff,Venus:0xe8b77c,Marte:0xd77a55,Júpiter:0xe6bd8b,Saturno:0xe7d1a4,Urano:0x83dce5,Neptuno:0x477bff}[name];
