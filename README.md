@@ -101,3 +101,5 @@ La rama `desarrollo/primera-version` incorpora un modo 3D para recorrer Próxima
 No se dibujan exolunas ni cinturones como si estuvieran confirmados: se informa cuando no hay detecciones/caracterización. Las órbitas usan los parámetros publicados disponibles; las fases, orientación orbital y escalas visuales son esquemáticas cuando faltan elementos. Las masas por velocidad radial son masas mínimas (M·sen i), no masas verdaderas medidas.
 
 Fuentes de consulta: [NASA Exoplanet Archive — Próxima Centauri](https://exoplanetarchive.ipac.caltech.edu/overview/proxima%20centauri), [NASA Exoplanet Archive — Barnard's Star](https://exoplanetarchive.ipac.caltech.edu/overview/barnard%20star), [NASA Exoplanet Archive — Ross 128 b](https://exoplanetarchive.ipac.caltech.edu/overview/ross%20128%20b).
+
+Parámetros estelares de Barnard mostrados en el visor: temperatura efectiva de referencia 3195 K, masa 0,162 M☉ y radio 0,185 R☉ (NASA Exoplanet Archive; valores de la solución citada en su ficha).
