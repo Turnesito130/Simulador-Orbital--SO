@@ -59,4 +59,5 @@ await writeFile(resolve(outDir, "index.html"), output, "utf8");
 await writeFile(resolve(outDir, "app.js"), bundled, "utf8");
 await copyFile(resolve(root, "README.md"), resolve(outDir, "LEEME.txt"));
 await copyFile(resolve(root, "PLAN.md"), resolve(outDir, "PLAN.txt"));
+await copyFile(resolve(root, "TEXTURE_CREDITS.md"), resolve(outDir, "FUENTES-TEXTURAS.txt"));
 console.log("Paquete autocontenido creado en dist/Simulador-Orbital-SO");
