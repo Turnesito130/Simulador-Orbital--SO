@@ -451,7 +451,7 @@ const exoModal=document.querySelector('#exoModal'),exoGrid=document.querySelecto
 
 let exoCatalogSystems=exoSystems.slice(),exoCatalogLoaded=false,exoCatalogTotal=0,exoVisibleLimit=100;
 const exoEscape=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function formatExo(v,d=3){return Number.isFinite(Number(v))?Number(v).toLocaleString('es-ES',{maximumFractionDigits:d}):'No publicado';}
+function formatExo(v,d=3){return v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v).toLocaleString('es-ES',{maximumFractionDigits:d}):'No publicado';}
 function showExoDetail(sys){
  exoDetail.style.display='block';
  const rows=sys.planets.map(p=>Array.isArray(p)?{name:p[0],period:p[1]}:p).map(p=>'<tr><td>'+exoEscape(p.name)+'</td><td>'+formatExo(p.period,6)+' días</td><td>'+formatExo(p.axis,5)+' UA</td><td>'+formatExo(p.radius,3)+' R⊕</td><td>'+formatExo(p.mass,3)+' M⊕</td></tr>').join('');
@@ -478,7 +478,7 @@ async function loadExoCatalog(){
   const groups=new Map();
   for(const p of rows){
    if(!p.pl_name||!p.hostname)continue;
-   if(!groups.has(p.hostname))groups.set(p.hostname,{id:'nasa-'+p.hostname,name:p.hostname,star:p.hostname,galaxy:'Vía Láctea',distance:Number.isFinite(+p.sy_dist)?formatExo(+p.sy_dist*3.26156,2)+' años luz':'Distancia no publicada',stars:p.sy_snum,planetCount:0,status:'Confirmado',fact:'Datos del catálogo compuesto de planetas confirmados de NASA. La asignación a la Vía Láctea es la clasificación de trabajo para sistemas estelares catalogados; no representa una medición de distancia galáctica individual.',url:'https://exoplanetarchive.ipac.caltech.edu/overview/'+encodeURIComponent(p.hostname),planets:[]});
+   if(!groups.has(p.hostname))groups.set(p.hostname,{id:'nasa-'+p.hostname,name:p.hostname,star:p.hostname,galaxy:'Vía Láctea',distance:p.sy_dist!==null&&p.sy_dist!==undefined&&Number.isFinite(+p.sy_dist)?formatExo(+p.sy_dist*3.26156,2)+' años luz':'Distancia no publicada',stars:p.sy_snum,planetCount:0,status:'Confirmado',fact:'Datos del catálogo compuesto de planetas confirmados de NASA. La asignación a la Vía Láctea es la clasificación de trabajo para sistemas estelares catalogados; no representa una medición de distancia galáctica individual.',url:'https://exoplanetarchive.ipac.caltech.edu/overview/'+encodeURIComponent(p.hostname),planets:[]});
    const sys=groups.get(p.hostname);sys.planets.push({name:p.pl_name,period:p.pl_orbper,axis:p.pl_orbsmax,radius:p.pl_rade,mass:p.pl_bmasse});sys.planetCount++;
   }
   exoCatalogSystems=Array.from(groups.values()).sort((a,b)=>a.name.localeCompare(b.name));
