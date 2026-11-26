@@ -30,6 +30,12 @@ assert.match(main[2], /function setMode\(m,preserveView=false\)/, 'Debe existir 
 assert.match(main[2], /setMode\('galaxy',true\)/, 'El zoom hacia la galaxia debe conservar el encuadre');
 assert.match(main[2], /setMode\('solar',true\)/, 'El regreso al Sistema Solar debe conservar el encuadre');
 assert.match(main[2], /stellarSystemData\.forEach\(\(item,i\)/, 'El selector debe poblarse desde los sistemas definidos');
+assert.match(main[2], /function clearStellarSystem\(\)[\s\S]*?geometry\.dispose\(\)/, 'Al cambiar de sistema deben liberarse las geometrías de GPU');
+assert.match(main[2], /material\.dispose\(\)/, 'Al cambiar de sistema deben liberarse los materiales de GPU');
+assert.match(main[2], /stellarIndex=\(\(index%stellarSystemData\.length\)\+stellarSystemData\.length\)%stellarSystemData\.length/, 'La navegación circular debe admitir índices negativos y positivos');
+assert.match(main[2], /mode==='stellar'&&\(k==='arrowleft'\|\|k==='arrowright'\)/, 'Las flechas deben permitir cambiar de sistema directamente');
+assert.ok((main[2].match(/\{name:/g)||[]).length >= 9, 'Debe haber datos para los nueve sistemas estelares');
+
 
 const tempDir = mkdtempSync(join(tmpdir(), 'so-check-'));
 try {
