@@ -38,7 +38,7 @@ GitHub Pages publica esta rama mediante el flujo de Pages que GitHub activa al s
 
 ## Estado científico y limitaciones
 
-Esta es una primera maqueta funcional, no una efeméride de precisión. Las distancias y radios visuales están comprimidos; las superficies planetarias usan texturas procedurales ilustrativas, no fotografías ni mapas científicos; varias lunas son representaciones ilustrativas; el cinturón de asteroides representa una población enorme mediante puntos; la Vía Láctea tiene una estructura espiral visual esquemática y la curvatura del espacio-tiempo no es un cálculo relativista. El catálogo de misiones no muestra posiciones actuales calculadas ni debe utilizarse para navegación. No debe utilizarse para cálculos astronómicos precisos.
+Esta es una primera maqueta funcional, no una efeméride de precisión. Las distancias y radios visuales están comprimidos; las superficies de los ocho planetas principales usan mapas equirectangulares reales compilados a partir de datos de observación y misiones espaciales; los mapas de gigantes gaseosos representan atmósferas variables, no una superficie sólida; varias lunas son representaciones ilustrativas; el cinturón de asteroides representa una población enorme mediante puntos; la Vía Láctea tiene una estructura espiral visual esquemática y la curvatura del espacio-tiempo no es un cálculo relativista. El catálogo de misiones no muestra posiciones actuales calculadas ni debe utilizarse para navegación. No debe utilizarse para cálculos astronómicos precisos.
 
 ## Próximas mejoras
 
@@ -59,7 +59,7 @@ Se han mejorado las texturas procedurales de los planetas, la atmósfera y nubes
 
 ## Navegación y cielo profundo
 
-La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre y zoom con rueda o gesto de pellizco. Se incluyen patrones de estrellas destacados de ocho constelaciones con direcciones J2000 aproximadas, además de un selector con los 88 nombres y abreviaturas oficiales de la UAI. Las otras 80 aparecen en el catálogo, pero no se dibujan hasta incorporar estrellas y límites oficiales verificables. El cinturón principal de Kuiper se representa entre 30 y 50 UA y el disco disperso como una extensión esquemática; sus puntos son una nube visual generada, no objetos reales ni posiciones orbitales medidas. Las galaxias cercanas continúan en posiciones esquemáticas, no como mapa tridimensional a escala. Las texturas de planetas, Sol, galaxias y nubes son ilustraciones procedurales, no imágenes científicas ni datos observados. Los datos científicos y límites de cada representación deben mostrarse claramente para no confundir ilustración con observación.
+La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre y zoom con rueda o gesto de pellizco. Se incluyen patrones de estrellas destacados de ocho constelaciones con direcciones J2000 aproximadas, además de un selector con los 88 nombres y abreviaturas oficiales de la UAI. Las otras 80 aparecen en el catálogo, pero no se dibujan hasta incorporar estrellas y límites oficiales verificables. El cinturón principal de Kuiper se representa entre 30 y 50 UA y el disco disperso como una extensión esquemática; sus puntos son una nube visual generada, no objetos reales ni posiciones orbitales medidas. Las galaxias cercanas continúan en posiciones esquemáticas, no como mapa tridimensional a escala. Los ocho planetas principales usan mapas planetarios de Solar System Scope (licencia CC BY 4.0), basados en datos e imágenes de misiones y observatorios. Sus mapas advierten que algunas zonas no observadas pueden estar completadas visualmente; Venus muestra cartografía radar coloreada y los gigantes gaseosos son mosaicos atmosféricos representativos. Plutón todavía no tiene un mapa real integrado y no se debe confundir su esfera de color uniforme con una superficie cartografiada. Los datos científicos y límites de cada representación deben mostrarse claramente para no confundir ilustración con observación.
 
 
 ## Última actualización de interfaz y exploración
@@ -70,3 +70,8 @@ La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre
 - Las lunas representadas de Saturno se sitúan fuera del borde exterior de los anillos para evitar que sus órbitas los atraviesen visualmente.
 - La densidad estelar de la representación de la Vía Láctea se ha incrementado. Sigue siendo una visualización procedural, no un mapa de posiciones estelares medido.
 - El modo **Tiempo real** hace avanzar el reloj orbital a un segundo simulado por segundo real. No sincroniza posiciones de sondas ni satélites con telemetría externa.
+
+
+## Mapas reales de los planetas
+
+El simulador aplica mapas equirectangulares a Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno. La Tierra incluye una capa de nubes basada en cartografía de nubes y Saturno una textura de anillos. En la web se intentan cargar desde Solar System Scope; el ZIP de Chromebook descarga y empaqueta los mismos recursos en `assets/textures/` para que se puedan usar sin conexión. Consulta `TEXTURE_CREDITS.md` para las fuentes, licencia y limitaciones. Plutón queda pendiente de una cartografía global adecuada.
