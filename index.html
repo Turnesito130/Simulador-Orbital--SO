@@ -129,8 +129,8 @@ const realPlanetMaps={
 const realTextureLoader=new THREE.TextureLoader();
 function loadRealTexture(file,onReady,remoteUrl){
  const apply=texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());texture.generateMipmaps=true;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;onReady(texture);};
- const fallback=remoteUrl||('https://spaceengine.solarsystemscope.com/textures/download/'+file);
- realTextureLoader.load('./assets/textures/'+file,apply,undefined,()=>realTextureLoader.load(fallback,apply,undefined,err=>console.warn('No se pudo cargar el mapa '+file,err)));
+ const fallback=remoteUrl||('https://raw.githubusercontent.com/elymas/solar-simulator/d34a9f973a7c4ad683eeb7d080b0accaba81e840/public/textures/'+file);
+ realTextureLoader.load('./assets/textures/'+file,apply,undefined,()=>realTextureLoader.load(fallback,apply,undefined,err=>console.warn('No se pudo cargar el mapa real '+file+' desde el paquete local ni el espejo fijado',err)));
 }
 function makePlanetTexture(name,baseColor){
  // Respaldo offline determinista: evita esferas negras si el ZIP no contiene mapas externos.
@@ -693,7 +693,7 @@ document.querySelector('#applyPlanetEdit').addEventListener('click',()=>{if(sele
 let directPlanetDrag=null;
 const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0),dragPoint=new THREE.Vector3();
 renderer.domElement.addEventListener('pointerdown',e=>{if(mode!=='solar'||e.button!==0)return;const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(p,camera);const hit=raycaster.intersectObjects(planetObjects.map(o=>o.mesh),false)[0];if(!hit)return;const o=planetObjects.find(x=>x.mesh===hit.object);if(!o)return;directPlanetDrag={o,pointerId:e.pointerId};controls.enabled=false;selected=planetObjects.indexOf(o);syncPlanetEditor(o);});
-renderer.domElement.addEventListener('pointermove',e=>{if(!directPlanetDrag||e.pointerId!==directPlanetDrag.pointerId)return;const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(p,camera);if(!raycaster.ray.intersectPlane(dragPlane,dragPoint))return;const o=directPlanetDrag.o,dx=dragPoint.x,dz=dragPoint.z,r=Math.max(10.25,Math.hypot(dx,dz)),angle=Math.atan2(dz,dx);o.d[1]=Math.max(.01,Math.expm1((r-10)/24));o.d[2]=365.256*Math.sqrt(o.d[1]*o.d[1]*o.d[1]);o.r=r;o.phaseOffset=angle-(elapsed/o.d[2]*Math.PI*2);o.userEdited=true;o.mesh.position.set(dx,0,dz);syncPlanetEditor(o);});
+renderer.domElement.addEventListener('pointermove',e=>{if(!directPlanetDrag||e.pointerId!==directPlanetDrag.pointerId)return;const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(p,camera);if(!raycaster.ray.intersectPlane(dragPlane,dragPoint))return;const o=directPlanetDrag.o,dx=dragPoint.x,dz=dragPoint.z,r=Math.max(10.25,Math.hypot(dx,dz)),angle=Math.atan2(dz,dx);o.d[1]=Math.max(.01,Math.expm1((r-10)/36));o.d[2]=365.256*Math.sqrt(o.d[1]*o.d[1]*o.d[1]);o.r=r;o.phaseOffset=angle-(elapsed/o.d[2]*Math.PI*2);o.userEdited=true;o.mesh.position.set(dx,0,dz);syncPlanetEditor(o);});
 function finishPlanetDrag(e){if(!directPlanetDrag||e.pointerId!==directPlanetDrag.pointerId)return;directPlanetDrag=null;controls.enabled=true;}
 renderer.domElement.addEventListener('pointerup',finishPlanetDrag);renderer.domElement.addEventListener('pointercancel',finishPlanetDrag);
 renderer.domElement.addEventListener('wheel',()=>{requestAnimationFrame(()=>{const distance=camera.position.distanceTo(controls.target);if(mode==='solar'&&distance>205){setMode('galaxy',true);}else if(mode==='galaxy'&&distance<175){setMode('solar',true);}});},{passive:true});
