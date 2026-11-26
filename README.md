@@ -76,6 +76,8 @@ La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre
 
 El simulador aplica mapas equirectangulares a Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno. La Tierra incluye una capa de nubes basada en cartografía de nubes y Saturno una textura de anillos. En la web se intentan cargar desde Solar System Scope; el ZIP de Chromebook descarga y empaqueta los mismos recursos en `assets/textures/` para que se puedan usar sin conexión. Consulta `TEXTURE_CREDITS.md` para las fuentes, licencia y limitaciones. Plutón queda pendiente de una cartografía global adecuada.
 
+**Nota del paquete offline:** NASA puede bloquear temporalmente la descarga de los mapas MOLA de Marte y LROC/LOLA de la Luna (HTTP 403). El generador no detiene por ello el ZIP: cuando esos archivos no se pueden obtener, el simulador utiliza sus superficies procedurales locales como respaldo. En ese caso, los mapas científicos de Marte y la Luna no están incluidos en ese ZIP concreto.
+
 
 ## Laboratorio gravitacional (experimental)
 
