@@ -162,7 +162,7 @@ if(name==='Tierra'){
  const clouds=new THREE.Mesh(new THREE.SphereGeometry(size*1.014,96,64),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.48,roughness:1,depthWrite:false}));
  loadRealTexture('2k_earth_clouds.jpg',t=>{clouds.material.alphaMap=t;clouds.material.needsUpdate=true;});
  mesh.add(clouds);mesh.userData.clouds=clouds;
-}mesh.position.x=r;pivot.add(mesh);const ringPts=[],ecc=d[8]||0,inc=(d[9]||0)*Math.PI/180;for(let k=0;k<=256;k++){const M=k/256*Math.PI*2,E=solveKepler(M,ecc);ringPts.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));line.rotation.x=inc;orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.22,size*2.72,256),new THREE.MeshStandardMaterial({map:null,color:0xd9c69e,side:THREE.DoubleSide,transparent:true,opacity:.97,roughness:1,metalness:.04,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.position.x=r;pivot.add(ring);loadRealTexture('2k_saturn_ring_alpha.png',t=>{ring.material.alphaMap=t;ring.material.needsUpdate=true;});const ringGlow=new THREE.Mesh(new THREE.RingGeometry(size*2.74,size*2.9,192),new THREE.MeshBasicMaterial({color:0xe4d1a8,side:THREE.DoubleSide,transparent:true,opacity:.12,depthWrite:false}));ringGlow.rotation.x=Math.PI/2;ringGlow.position.x=r;pivot.add(ringGlow)}
+}mesh.position.x=r;pivot.add(mesh);const ringPts=[],ecc=d[8]||0,inc=(d[9]||0)*Math.PI/180;for(let k=0;k<=256;k++){const M=k/256*Math.PI*2,E=solveKepler(M,ecc);ringPts.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));line.rotation.x=inc;orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.22,size*2.72,256),new THREE.MeshStandardMaterial({map:null,color:0xd9c69e,side:THREE.DoubleSide,transparent:true,opacity:.97,roughness:1,metalness:.04,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.rotation.z=THREE.MathUtils.degToRad(26.7);ring.position.x=r;pivot.add(ring);loadRealTexture('2k_saturn_ring_alpha.png',t=>{ring.material.alphaMap=t;ring.material.needsUpdate=true;});const ringGlow=new THREE.Mesh(new THREE.RingGeometry(size*2.74,size*2.9,192),new THREE.MeshBasicMaterial({color:0xe4d1a8,side:THREE.DoubleSide,transparent:true,opacity:.12,depthWrite:false}));ringGlow.rotation.x=Math.PI/2;ringGlow.position.x=r;pivot.add(ringGlow)}
 const moonGroup=new THREE.Group();mesh.add(moonGroup);if(i===2||i===3||i===4||i===5||i===6||i===7||i===8){const count=i===2?1:i===3?2:i===4?4:i===5?4:i===6?3:i===7?1:1;for(let m=0;m<count;m++){const mr=name==='Saturno'?size*3.25+m*1.35:size+(m+1)*.55;const moonNames={Tierra:['Luna'],Marte:['Fobos','Deimos'],Júpiter:['Ío','Europa','Ganímedes','Calisto'],Saturno:['Encélado','Rea','Dione','Titán'],Urano:['Miranda','Ariel','Titania'],Neptuno:['Tritón'],Plutón:['Caronte']}[name]||['Satélite natural '+(m+1)];
 const moonName=moonNames[m]||moonNames[moonNames.length-1];
 const moonGeo=new THREE.IcosahedronGeometry(Math.max(.09,size*.13),2);const ma=moonGeo.attributes.position;for(let q=0;q<ma.count;q++){const rough=THREE.MathUtils.randFloat(.94,1.06);ma.setXYZ(q,ma.getX(q)*rough,ma.getY(q)*rough,ma.getZ(q)*rough);}moonGeo.computeVertexNormals();
@@ -240,7 +240,35 @@ const kuiperInner=orbitRadius(30),kuiperOuter=orbitRadius(50);
 const kuiperEdge=new THREE.Mesh(new THREE.RingGeometry(kuiperInner,kuiperOuter,192),new THREE.MeshBasicMaterial({color:0x6a9cc5,side:THREE.DoubleSide,transparent:true,opacity:.035,depthWrite:false}));
 kuiperEdge.rotation.x=-Math.PI/2;kuiperGroup.add(kuiperEdge);
 
-const warpGroup=new THREE.Group();solarGroup.add(warpGroup);const wmat=new THREE.MeshBasicMaterial({color:0x4ba9ff,wireframe:true,transparent:true,opacity:.18});const warp=new THREE.Mesh(new THREE.PlaneGeometry(100,100,42,42),wmat);warp.rotation.x=-Math.PI/2;const p=warp.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i),r=Math.sqrt(x*x+z*z);p.setZ(i,-5*Math.exp(-r*.11))}warp.geometry.computeVertexNormals();warpGroup.add(warp);warpGroup.visible=false;
+// Malla de curvatura ampliada: cubre desde el Sol hasta más allá de la órbita de Neptuno.
+const warpGroup=new THREE.Group();solarGroup.add(warpGroup);
+const wmat=new THREE.MeshBasicMaterial({color:0x4ba9ff,wireframe:true,transparent:true,opacity:.24,side:THREE.DoubleSide});
+const warp=new THREE.Mesh(new THREE.PlaneGeometry(260,260,80,80),wmat);
+warp.rotation.x=-Math.PI/2;warpGroup.add(warp);warpGroup.visible=false;
+const warpPosition=warp.geometry.attributes.position;
+const warpMasses={Mercurio:.055,Venus:.815,Tierra:1,Marte:.107,Júpiter:317.8,Saturno:95.2,Urano:14.5,Neptuno:17.1,Plutón:.0022};
+const warpBodies=[];
+function updateWarpSurface(){
+ if(!warpGroup.visible||mode!=='solar')return;
+ warpBodies.length=0;
+ for(const o of planetObjects){
+  const name=o.d[0],p=o.mesh.getWorldPosition(new THREE.Vector3());
+  solarGroup.worldToLocal(p);
+  warpBodies.push({x:p.x,z:p.z,mass:warpMasses[name]||1});
+ }
+ for(let i=0;i<warpPosition.count;i++){
+  const x=warpPosition.getX(i),z=warpPosition.getY(i);
+  let depth=15*Math.exp(-(x*x+z*z)/(2*30*30));
+  for(const body of warpBodies){
+   const dx=x-body.x,dz=z-body.z,dist2=dx*dx+dz*dz;
+   const width=4.5+Math.min(8,Math.cbrt(body.mass)*1.15);
+   const amplitude=1.15+Math.min(5.5,Math.log1p(body.mass)*1.15);
+   depth+=amplitude*Math.exp(-dist2/(2*width*width));
+  }
+  warpPosition.setZ(i,-depth);
+ }
+ warpPosition.needsUpdate=true;warp.geometry.computeVertexNormals();
+}
 // Vía Láctea: disco visto desde arriba, barra central, bulbo y brazos espirales con polvo y estrellas distribuidas por todo el disco.
 const galaxyGroup=new THREE.Group();scene.add(galaxyGroup);
 const bulge=new THREE.Mesh(new THREE.SphereGeometry(25,48,32),new THREE.MeshBasicMaterial({color:0xffc982,transparent:true,opacity:.28,depthWrite:false}));bulge.scale.set(1,.22,1);galaxyGroup.add(bulge);
@@ -558,7 +586,7 @@ renderer.domElement.addEventListener('pointerup',finishPlanetDrag);renderer.domE
 renderer.domElement.addEventListener('wheel',()=>{requestAnimationFrame(()=>{const distance=camera.position.distanceTo(controls.target);if(mode==='solar'&&distance>205){setMode('galaxy');}else if(mode==='galaxy'&&distance<175){setMode('solar');}});},{passive:true});
 
 function animate(now){if(document.hidden)return;const dt=Math.min((now-last)/1000,.08);last=now;moveFreely(dt);updateStellarTravel(dt);if(mode==='lab'){if(!paused)updateLab(dt);}else if(!paused){elapsed+=dt*speedValue();if(mode==='solar'){planetObjects.forEach(o=>{const period=o.d[2],ecc=o.d[8]||0,inc=(o.d[9]||0)*Math.PI/180,mean=((elapsed/period)*Math.PI*2+(o.phaseOffset||0))%(Math.PI*2),E=solveKepler(mean,ecc),a=o.r;o.pivot.rotation.x=inc;o.mesh.position.set(a*(Math.cos(E)-ecc),0,a*Math.sqrt(1-ecc*ecc)*Math.sin(E));o.mesh.rotation.y=elapsed*.03;if(o.mesh.userData.clouds)o.mesh.userData.clouds.rotation.y=elapsed*.034;o.moonGroup.children.forEach(m=>{if(m.isMesh){const phase=elapsed/m.userData.period* Math.PI*2;m.position.set(Math.cos(phase)*m.userData.r,0,Math.sin(phase)*m.userData.r)}});if(o.mesh.userData.artificial)o.mesh.userData.artificial.children.forEach(x=>{if(x.isMesh||x.isGroup){const phase=now/1000*x.userData.rate+x.userData.phase;x.position.set(Math.cos(phase)*x.userData.radius,0,Math.sin(phase)*x.userData.radius)}})});}else{const galacticPeriod=230e6*365.25;const a=elapsed/galacticPeriod*Math.PI*2;sunMarker.position.set(Math.cos(a)*125,0,Math.sin(a)*125)}}
-voyagerMarker.rotation.y=now*.00025;if(mode==='solar'){updateAsteroidOrbits(elapsed);smallBodyObjects.forEach(o=>{const a=o.phase+elapsed/o.d.period*Math.PI*2,r=o.orbitRadius;o.mesh.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.mesh.rotation.set(elapsed*.0003,elapsed*.0005,0);});}beltGroup.rotation.y=0;kuiperGroup.rotation.y=elapsed*.000012;sun.rotation.y=elapsed*.0009;sunCore.rotation.y=-elapsed*.0014;flareGroup.rotation.y=elapsed*.00012;sunHalo.material.rotation=elapsed*.000035;if(visorTarget&&mode==='solar'){const p=visorTarget.getWorldPosition(new THREE.Vector3());const delta=p.clone().sub(controls.target);camera.position.add(delta);controls.target.copy(p);}controls.update();renderer.render(scene,camera);requestAnimationFrame(animate)}
+voyagerMarker.rotation.y=now*.00025;if(mode==='solar'){updateWarpSurface();updateAsteroidOrbits(elapsed);smallBodyObjects.forEach(o=>{const a=o.phase+elapsed/o.d.period*Math.PI*2,r=o.orbitRadius;o.mesh.position.set(Math.cos(a)*r,0,Math.sin(a)*r);o.mesh.rotation.set(elapsed*.0003,elapsed*.0005,0);});}beltGroup.rotation.y=0;kuiperGroup.rotation.y=elapsed*.000012;sun.rotation.y=elapsed*.0009;sunCore.rotation.y=-elapsed*.0014;flareGroup.rotation.y=elapsed*.00012;sunHalo.material.rotation=elapsed*.000035;if(visorTarget&&mode==='solar'){const p=visorTarget.getWorldPosition(new THREE.Vector3());const delta=p.clone().sub(controls.target);camera.position.add(delta);controls.target.copy(p);}controls.update();renderer.render(scene,camera);requestAnimationFrame(animate)}
 
 
 // Sistemas destacados de referencia; el catálogo completo se carga desde NASA Exoplanet Archive (PSCompPars). Periodos en días.
