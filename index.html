@@ -132,6 +132,40 @@ function loadRealTexture(file,onReady){
  realTextureLoader.load('./assets/textures/'+file,apply,undefined,()=>realTextureLoader.load('https://spaceengine.solarsystemscope.com/textures/download/'+file,apply,undefined,()=>{}));
 }
 function makePlanetTexture(){return null;}
+// Superficies procedurales deterministas para las lunas: color, cráteres, vetas y relieve.
+// Se generan localmente para que también funcionen al abrir el ZIP sin conexión.
+function makeMoonSurfaceMaps(name,baseColor){
+ const size=512,seed=[...name].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,2166136261);
+ let state=seed||1;const rand=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+ const colorCanvas=document.createElement('canvas');colorCanvas.width=colorCanvas.height=size;
+ const ctx=colorCanvas.getContext('2d'),image=ctx.createImageData(size,size);
+ const base=new THREE.Color(baseColor),br=Math.round(base.r*255),bg=Math.round(base.g*255),bb=Math.round(base.b*255);
+ for(let i=0;i<image.data.length;i+=4){const n=(rand()-.5)*34;image.data[i]=Math.max(0,Math.min(255,br+n));image.data[i+1]=Math.max(0,Math.min(255,bg+n));image.data[i+2]=Math.max(0,Math.min(255,bb+n));image.data[i+3]=255;}
+ ctx.putImageData(image,0,0);
+ const bumpCanvas=document.createElement('canvas');bumpCanvas.width=bumpCanvas.height=size;
+ const bctx=bumpCanvas.getContext('2d'),bump=bctx.createImageData(size,size);
+ for(let i=0;i<bump.data.length;i+=4){const n=115+rand()*35;bump.data[i]=bump.data[i+1]=bump.data[i+2]=n;bump.data[i+3]=255;}
+ bctx.putImageData(bump,0,0);
+ const icy=['Europa','Encélado','Tritón','Ariel'].includes(name),volcanic=name==='Ío',hazy=name==='Titán';
+ const count=hazy?34:icy?105:190;
+ for(let i=0;i<count;i++){
+  const x=rand()*size,y=rand()*size,r=(hazy?2:1.5)+rand()*(hazy?12:25);
+  const shade=rand(),dark=volcanic?'rgba(75,39,18,.34)':icy?'rgba(65,78,91,.28)':'rgba(28,27,25,.34)';
+  const light=icy?'rgba(255,255,255,.42)':'rgba(235,226,207,.32)';
+  const g=ctx.createRadialGradient(x-r*.22,y-r*.25,r*.08,x,y,r);
+  g.addColorStop(0,shade>.5?light:dark);g.addColorStop(.72,'rgba(70,65,58,.12)');g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  bctx.fillStyle='rgba(35,35,35,.48)';bctx.beginPath();bctx.arc(x,y,r,0,Math.PI*2);bctx.fill();
+  bctx.strokeStyle='rgba(245,245,245,.5)';bctx.lineWidth=Math.max(1,r*.12);bctx.beginPath();bctx.arc(x-r*.08,y-r*.08,r*.78,Math.PI*1.05,Math.PI*1.85);bctx.stroke();
+ }
+ if(icy||volcanic){
+  for(let i=0;i<85;i++){const x=rand()*size,y=rand()*size;ctx.strokeStyle=icy?'rgba(245,250,255,.18)':'rgba(100,48,18,.22)';ctx.lineWidth=.5+rand()*2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(rand()-.5)*(icy?85:35),y+(rand()-.5)*(icy?12:55));ctx.stroke();}
+ }
+ const color=new THREE.CanvasTexture(colorCanvas),bumpTexture=new THREE.CanvasTexture(bumpCanvas);
+ color.colorSpace=THREE.SRGBColorSpace;color.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+ bumpTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+ return {color,bump:bumpTexture};
+}
 const physicalData={Mercurio:{diameter:4879,moons:0,temp:'167 °C de media',composition:'Silicatos y núcleo rico en hierro',mass:'3,30 × 10²³ kg'},Venus:{diameter:12104,moons:0,temp:'464 °C de media',composition:'Roca silicatada; atmósfera de CO₂',mass:'4,87 × 10²⁴ kg'},Tierra:{diameter:12742,moons:1,temp:'15 °C de media',composition:'Silicatos, hierro y níquel; océanos y atmósfera',mass:'5,97 × 10²⁴ kg'},Marte:{diameter:6779,moons:2,temp:'−65 °C de media',composition:'Roca basáltica, hierro y atmósfera fina de CO₂',mass:'6,42 × 10²³ kg'},Júpiter:{diameter:139820,moons:115,temp:'−110 °C en las nubes',composition:'Principalmente hidrógeno y helio',mass:'1,90 × 10²⁷ kg'},Saturno:{diameter:116460,moons:293,temp:'−140 °C en las nubes',composition:'Principalmente hidrógeno y helio',mass:'5,68 × 10²⁶ kg'},Urano:{diameter:50724,moons:29,temp:'−195 °C en las nubes',composition:'Hidrógeno, helio y hielos de agua, amoniaco y metano',mass:'8,68 × 10²⁵ kg'},Neptuno:{diameter:49244,moons:16,temp:'−200 °C en las nubes',composition:'Hidrógeno, helio y hielos de agua, amoniaco y metano',mass:'1,02 × 10²⁶ kg'},Plutón:{diameter:2377,moons:5,temp:'−229 °C de media',composition:'Hielo de nitrógeno, metano y monóxido de carbono sobre roca',mass:'1,30 × 10²² kg'}};
 function solveKepler(meanAnomaly,eccentricity){let E=meanAnomaly;for(let n=0;n<8;n++){const f=E-eccentricity*Math.sin(E)-meanAnomaly,fp=1-eccentricity*Math.cos(E);E-=f/fp;}return E;}
 // Elementos orbitales medios: excentricidad e inclinación respecto a la eclíptica (valores aproximados).
@@ -165,8 +199,12 @@ if(name==='Tierra'){
 }mesh.position.x=r;pivot.add(mesh);const ringPts=[],ecc=d[8]||0,inc=(d[9]||0)*Math.PI/180;for(let k=0;k<=256;k++){const M=k/256*Math.PI*2,E=solveKepler(M,ecc);ringPts.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));line.rotation.x=inc;orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.22,size*2.72,256),new THREE.MeshStandardMaterial({map:null,color:0xd9c69e,side:THREE.DoubleSide,transparent:true,opacity:.97,roughness:1,metalness:.04,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.rotation.z=THREE.MathUtils.degToRad(26.7);ring.position.x=r;pivot.add(ring);loadRealTexture('2k_saturn_ring_alpha.png',t=>{ring.material.alphaMap=t;ring.material.needsUpdate=true;});const ringGlow=new THREE.Mesh(new THREE.RingGeometry(size*2.74,size*2.9,192),new THREE.MeshBasicMaterial({color:0xe4d1a8,side:THREE.DoubleSide,transparent:true,opacity:.12,depthWrite:false}));ringGlow.rotation.x=Math.PI/2;ringGlow.rotation.z=THREE.MathUtils.degToRad(26.7);ringGlow.position.x=r;pivot.add(ringGlow)}
 const moonGroup=new THREE.Group();mesh.add(moonGroup);if(i===2||i===3||i===4||i===5||i===6||i===7||i===8){const count=i===2?1:i===3?2:i===4?4:i===5?4:i===6?3:i===7?1:1;for(let m=0;m<count;m++){const mr=name==='Saturno'?size*3.25+m*1.35:size+(m+1)*.55;const moonNames={Tierra:['Luna'],Marte:['Fobos','Deimos'],Júpiter:['Ío','Europa','Ganímedes','Calisto'],Saturno:['Encélado','Rea','Dione','Titán'],Urano:['Miranda','Ariel','Titania'],Neptuno:['Tritón'],Plutón:['Caronte']}[name]||['Satélite natural '+(m+1)];
 const moonName=moonNames[m]||moonNames[moonNames.length-1];
-const moonGeo=new THREE.IcosahedronGeometry(Math.max(.09,size*.13),2);const ma=moonGeo.attributes.position;for(let q=0;q<ma.count;q++){const rough=THREE.MathUtils.randFloat(.94,1.06);ma.setXYZ(q,ma.getX(q)*rough,ma.getY(q)*rough,ma.getZ(q)*rough);}moonGeo.computeVertexNormals();
-const moon=new THREE.Mesh(moonGeo,new THREE.MeshStandardMaterial({color:moonName==='Ío'?0xd5a64d:moonName==='Europa'?0xc9c0a9:moonName==='Titán'?0xc78b4b:0xaeb8c5,roughness:1}));
+const moonGeo=new THREE.SphereGeometry(Math.max(.09,size*.13),48,32);
+const moonPalette={'Luna':0xaaa9a5,'Fobos':0x81796d,'Deimos':0x938879,'Ío':0xd5a64d,'Europa':0xc9c0a9,'Ganímedes':0x9c9587,'Calisto':0x746e65,'Encélado':0xd8e0e5,'Rea':0xbab6ad,'Dione':0xb9b5ad,'Titán':0xc78b4b,'Miranda':0x9c9b94,'Ariel':0xb8b7ad,'Titania':0x8e8b82,'Tritón':0xb7c1c8,'Caronte':0x77736d};
+const moonBase=moonPalette[moonName]||0xaeb8c5;
+const moonMaps=makeMoonSurfaceMaps(moonName,moonBase);
+const moonMaterial=new THREE.MeshStandardMaterial({map:moonMaps.color,bumpMap:moonMaps.bump,bumpScale:Math.max(.018,size*.018),color:0xffffff,roughness:.96,metalness:0});
+const moon=new THREE.Mesh(moonGeo,moonMaterial);
 moon.userData={kind:'moon',name:moonName,fact:'Luna natural real de '+name+'. Distancia y órbita en esta vista esquemáticas; no es una efeméride de precisión.'};moon.position.x=mr;moonGroup.add(moon);satellitePickables.push(moon);const pts=[];for(let k=0;k<=48;k++){const a=k/48*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*mr,0,Math.sin(a)*mr))}moonGroup.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x7890aa,transparent:true,opacity:.3})));moon.userData={...moon.userData,phase:m*2.2,r:mr,period:2.5+m*1.7}}}
 if(name==='Tierra'){const artificial=new THREE.Group();mesh.add(artificial);const satData=[['ISS',1.65,.92],['Hubble',2.05,1.18],['GPS',2.7,.73],['Satélite meteorológico',3.2,1.42],['Satélite de comunicaciones',3.65,1.05]];satData.forEach((sd,j)=>{const orbit=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:80},(_,k)=>{const a=k/80*Math.PI*2;return new THREE.Vector3(Math.cos(a)*sd[1],Math.sin(a)*sd[1]*.34,Math.sin(a)*sd[1]*.94)})),new THREE.LineBasicMaterial({color:0x5aaeff,transparent:true,opacity:.24}));artificial.add(orbit);const sat=new THREE.Group();const bus=new THREE.Mesh(new THREE.BoxGeometry(.16,.18,.2),new THREE.MeshStandardMaterial({color:0xb8c9d8,metalness:.65,roughness:.4}));sat.add(bus);const panelMat=new THREE.MeshStandardMaterial({color:0x245d9c,metalness:.35,roughness:.45,emissive:0x102e52});for(const side of [-1,1]){const panel=new THREE.Mesh(new THREE.BoxGeometry(.42,.025,.17),panelMat);panel.position.x=side*.29;sat.add(panel);const rail=new THREE.Mesh(new THREE.BoxGeometry(.025,.045,.19),new THREE.MeshStandardMaterial({color:0xd5e1ed,metalness:.8}));rail.position.x=side*.29;sat.add(rail);}const antenna=new THREE.Mesh(new THREE.ConeGeometry(.095,.12,20),new THREE.MeshStandardMaterial({color:0xd8dce2,metalness:.55,roughness:.4}));antenna.rotation.z=Math.PI;sat.add(antenna);sat.userData={kind:'satellite',name:sd[0],fact:'Satélite artificial representado con cuerpo, antena y paneles solares 3D. Su órbita es ilustrativa, no su posición actual.'};sat.position.set(sd[1],0,0);artificial.add(sat);bus.userData=sat.userData;satellitePickables.push(bus);sat.userData.phase=j*1.1;sat.userData.radius=sd[1];sat.userData.rate=.15+j*.035;});mesh.userData.artificial=artificial;}
 planetObjects.push({d,pivot,mesh,moonGroup,r,baseSize:size});const b=document.createElement('button');b.textContent=name; b.addEventListener('click',()=>focusPlanet(i));document.querySelector('#planetList').appendChild(b);});
