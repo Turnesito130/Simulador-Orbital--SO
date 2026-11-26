@@ -71,7 +71,7 @@ await mkdir(dataDir, { recursive: true });
 await writeFile(resolve(dataDir, "exoplanets.json"), JSON.stringify(exoRows), "utf8");
 console.log("NASA Exoplanet Archive: " + exoRows.length + " planetas confirmados empaquetados");
 const embeddedCatalog = JSON.stringify(exoRows).replace(/</g, "\\u003c");
-const offlineHtml = output.replace("</body>", `<script type="application/json" id="exoCatalogData">${embeddedCatalog}</script>\\n</body>`);
+const offlineHtml = output.replace("</body>", `<script type="application/json" id="exoCatalogData">${embeddedCatalog}</script>\n</body>`);
 await writeFile(resolve(outDir, "index.html"), offlineHtml, "utf8");
 await writeFile(resolve(outDir, "app.js"), bundled, "utf8");
 await copyFile(resolve(root, "README.md"), resolve(outDir, "LEEME.txt"));
