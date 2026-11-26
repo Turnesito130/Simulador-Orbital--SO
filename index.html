@@ -651,7 +651,7 @@ function setMode(m,preserveView=false){
  const gal=m==='galaxy',local=m==='local',lab=m==='lab',stellar=m==='stellar';
  if(m==='galaxy'&&previousMode==='local'){const shift=sunMarker.position.clone();camera.position.add(shift);controls.target.add(shift);}
  else if(m==='local'&&previousMode==='galaxy'){const shift=sunMarker.position.clone().negate();camera.position.add(shift);controls.target.add(shift);}
- localBubbleGroup.position.copy(gal?sunMarker.position:new THREE.Vector3());localBubbleGroup.scale.setScalar(gal?.14:1);bubbleShell.visible=!gal;localGlow.visible=!gal;bubbleGuides.visible=!gal;
+ localBubbleGroup.position.copy(gal?sunMarker.position:new THREE.Vector3());localBubbleGroup.scale.setScalar(gal ? 0.14 : 1);bubbleShell.visible=!gal;localGlow.visible=!gal;bubbleGuides.visible=!gal;
  mode=m;visorTarget=null;
  solarGroup.visible=m==='solar';stellarGroup.visible=stellar;labGroup.visible=lab;galaxyGroup.visible=gal;localBubbleGroup.visible=local||gal;localSystemMarkers.forEach(marker=>marker.visible=local);skyGroup.visible=!gal&&!lab;
  hoverCard.style.display='none';document.body.classList.toggle('lab-mode',lab);
