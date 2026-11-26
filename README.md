@@ -75,3 +75,12 @@ La cámara admite desplazamiento libre con W/A/S/D y Q/E, rotación con arrastre
 ## Mapas reales de los planetas
 
 El simulador aplica mapas equirectangulares a Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno. La Tierra incluye una capa de nubes basada en cartografía de nubes y Saturno una textura de anillos. En la web se intentan cargar desde Solar System Scope; el ZIP de Chromebook descarga y empaqueta los mismos recursos en `assets/textures/` para que se puedan usar sin conexión. Consulta `TEXTURE_CREDITS.md` para las fuentes, licencia y limitaciones. Plutón queda pendiente de una cartografía global adecuada.
+
+
+## Laboratorio gravitacional (experimental)
+
+La vista incluye un laboratorio independiente para crear cuerpos con masa (en masas terrestres), radio (km), posición (miles de km) y velocidad inicial (km/s). La interacción entre cuerpos se integra numéricamente con gravedad newtoniana de N cuerpos y un esquema leapfrog. Incluye escenarios de Tierra-Luna, dos masas iguales y colisión, además de una cuadrícula de potencial gravitatorio para explicar visualmente los pozos de gravedad.
+
+**Límites científicos:** la cuadrícula es una analogía visual del potencial newtoniano, no una solución de las ecuaciones de Einstein ni una representación métrica relativista exacta. La simulación no incluye todavía mareas, deformación, fragmentación, relatividad general ni un modelo de colisión avanzado. Las dimensiones visuales se amplían para que los cuerpos se puedan ver. Las órbitas de los asteroides del cinturón son aproximadas y no son efemérides JPL individuales.
+
+Los satélites artificiales de ejemplo se representan con geometría 3D (bus y paneles solares). Algunas lunas destacadas tienen modelos 3D y nombre; el catálogo completo de cientos de satélites naturales y millones de pequeños cuerpos requiere integrar catálogos y efemérides JPL/Horizons, y no se presenta como completado en esta versión.
