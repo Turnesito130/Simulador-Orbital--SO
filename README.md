@@ -26,7 +26,7 @@ Las fichas muestran datos históricos de lanzamiento, agencia, cohete, destino, 
 
 ## Sistemas extrasolares y galaxias
 
-El catálogo interactivo inicial incluye TRAPPIST-1 (siete planetas confirmados) y Proxima Centauri (Proxima b). Muestra sus periodos orbitales publicados y enlaza las fichas del NASA Exoplanet Archive. Es una muestra pequeña: el archivo de NASA registraba 6.473 planetas confirmados el 19 de noviembre de 2026; el simulador todavía no incorpora ese catálogo completo. No se atribuyen planetas confirmados a las galaxias externas representadas ni lunas confirmadas a estos exoplanetas.
+El catálogo se alimenta de la tabla PSCompPars del NASA Exoplanet Archive: el flujo de compilación descarga todos los planetas confirmados y los empaqueta en `data/exoplanets.json`, de modo que la búsqueda funciona sin conexión. Se agrupan por estrella anfitriona y se muestran periodo orbital, semieje mayor, radio y masa cuando están publicados. El total cambia con las actualizaciones de NASA. La galaxia anfitriona no se inventa: la clasificación de trabajo de sistemas catalogados es Vía Láctea y no equivale a disponer de una posición galáctica precisa. No se muestran candidatos como confirmados ni se asignan exoplanetas a galaxias externas sin evidencia sólida. Las posiciones orbitales actuales no se simulan a partir de estos parámetros.
 
 ## Recuento de lunas del Sistema Solar
 
