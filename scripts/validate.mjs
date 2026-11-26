@@ -36,16 +36,21 @@ assert.match(main[2], /stellarIndex=\(\(index%stellarSystemData\.length\)\+stell
 assert.match(main[2], /mode==='stellar'&&\(k==='arrowleft'\|\|k==='arrowright'\)/, 'Las flechas deben permitir cambiar de sistema directamente');
 assert.match(main[2], /stellarStarMesh&&raycaster\.intersectObject\(stellarStarMesh,false\)/, 'La estrella debe poder seleccionarse para recuperar su ficha');
 assert.match(main[2], /mode==='stellar'&&k==='escape'/, 'Escape debe salir del recorrido estelar');
-assert.ok((main[2].match(/\{name:/g)||[]).length >= 9, 'Debe haber datos para los nueve sistemas estelares');
+const systemsBlock = main[2].match(/const stellarSystemData=\[([\s\S]*?)\n\];/);
+assert.ok(systemsBlock, 'Debe existir el catálogo de sistemas estelares');
+assert.equal((systemsBlock[1].match(/^\s*\{name:/gm)||[]).length, 9, 'El recorrido debe contener exactamente nueve sistemas estelares');
 
 
 const tempDir = mkdtempSync(join(tmpdir(), 'so-check-'));
 try {
   const modulePath = join(tempDir, 'main.mjs');
+  const buildPath = join(tempDir, 'build-offline.mjs');
   writeFileSync(modulePath, main[2], 'utf8');
+  writeFileSync(buildPath, readFileSync(join(root, 'scripts', 'build-offline.mjs'), 'utf8'), 'utf8');
   execFileSync(process.execPath, ['--check', modulePath], { stdio: 'pipe' });
+  execFileSync(process.execPath, ['--check', buildPath], { stdio: 'pipe' });
 } finally {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
-console.log('SO checks passed: HTML5, unique IDs, required UI, navigation transitions and JavaScript syntax.');
+console.log('SO checks passed: HTML5, unique IDs, required UI, exactly nine stellar systems, navigation, GPU cleanup and JavaScript syntax (main + offline build).');
