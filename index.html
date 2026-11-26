@@ -131,7 +131,30 @@ function loadRealTexture(file,onReady){
  const apply=texture=>{texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());texture.generateMipmaps=true;texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;onReady(texture);};
  realTextureLoader.load('./assets/textures/'+file,apply,undefined,()=>realTextureLoader.load('https://spaceengine.solarsystemscope.com/textures/download/'+file,apply,undefined,()=>{}));
 }
-function makePlanetTexture(){return null;}
+function makePlanetTexture(name,baseColor){
+ // Respaldo offline determinista: evita esferas negras si el ZIP no contiene mapas externos.
+ const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=512;
+ const ctx=canvas.getContext('2d'),img=ctx.createImageData(canvas.width,canvas.height);
+ const seed=[...name].reduce((a,c)=>(Math.imul(a,31)+c.charCodeAt(0))>>>0,2166136261);let state=seed||1;
+ const rand=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+ const base=new THREE.Color(baseColor),gas=['Júpiter','Saturno','Urano','Neptuno'].includes(name);
+ for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++){
+  const i=(y*canvas.width+x)*4,u=x/canvas.width,v=y/canvas.height;
+  let n=(rand()-.5)*18,r=base.r*255+n,g=base.g*255+n,b=base.b*255+n;
+  if(gas){
+   const bands=Math.sin(v*(name==='Júpiter'?76:34)+Math.sin(u*19)*.18);
+   const storm=Math.exp(-Math.pow((u-.72)*9,2)-Math.pow((v-.52)*13,2));
+   r+=bands*24+storm*65;g+=bands*13+storm*28;b+=bands*5;
+  }else{
+   const terrain=Math.sin(u*38+Math.sin(v*17)*2)*7+Math.sin(v*51+u*7)*5;
+   r+=terrain;g+=terrain*.72;b+=terrain*.48;
+   if(name==='Marte'){r+=22;g-=10;b-=16;}
+   if(name==='Mercurio'){r-=5;g-=3;b+=1;}
+  }
+  img.data[i]=Math.max(0,Math.min(255,r));img.data[i+1]=Math.max(0,Math.min(255,g));img.data[i+2]=Math.max(0,Math.min(255,b));img.data[i+3]=255;
+ }
+ ctx.putImageData(img,0,0);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return texture;
+}
 // Superficies procedurales deterministas para las lunas: color, cráteres, vetas y relieve.
 // Se generan localmente para que también funcionen al abrir el ZIP sin conexión.
 function makeMoonSurfaceMaps(name,baseColor){
@@ -204,6 +227,11 @@ const moonPalette={'Luna':0xaaa9a5,'Fobos':0x81796d,'Deimos':0x938879,'Ío':0xd5
 const moonBase=moonPalette[moonName]||0xaeb8c5;
 const moonMaps=makeMoonSurfaceMaps(moonName,moonBase);
 const moonMaterial=new THREE.MeshStandardMaterial({map:moonMaps.color,bumpMap:moonMaps.bump,bumpScale:Math.max(.018,size*.018),color:0xffffff,roughness:.96,metalness:0});
+if(moonName==='Luna'){
+ // Cartografía real LROC y relieve LOLA publicados por NASA SVS (resolución 2K/1K).
+ realTextureLoader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_2k.jpg',t=>{t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());moonMaterial.map=t;moonMaterial.color.set(0xffffff);moonMaterial.needsUpdate=true;});
+ realTextureLoader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_3_8bit.jpg',t=>{moonMaterial.bumpMap=t;moonMaterial.bumpScale=Math.max(.035,size*.055);moonMaterial.needsUpdate=true;});
+}
 const moon=new THREE.Mesh(moonGeo,moonMaterial);
 moon.userData={kind:'moon',name:moonName,fact:'Luna natural real de '+name+'. Distancia y órbita en esta vista esquemáticas; no es una efeméride de precisión.'};moon.position.x=mr;moonGroup.add(moon);satellitePickables.push(moon);const pts=[];for(let k=0;k<=48;k++){const a=k/48*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*mr,0,Math.sin(a)*mr))}moonGroup.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x7890aa,transparent:true,opacity:.3})));moon.userData={...moon.userData,phase:m*2.2,r:mr,period:2.5+m*1.7}}}
 if(name==='Tierra'){const artificial=new THREE.Group();mesh.add(artificial);const satData=[['ISS',1.65,.92],['Hubble',2.05,1.18],['GPS',2.7,.73],['Satélite meteorológico',3.2,1.42],['Satélite de comunicaciones',3.65,1.05]];satData.forEach((sd,j)=>{const orbit=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:80},(_,k)=>{const a=k/80*Math.PI*2;return new THREE.Vector3(Math.cos(a)*sd[1],Math.sin(a)*sd[1]*.34,Math.sin(a)*sd[1]*.94)})),new THREE.LineBasicMaterial({color:0x5aaeff,transparent:true,opacity:.24}));artificial.add(orbit);const sat=new THREE.Group();const bus=new THREE.Mesh(new THREE.BoxGeometry(.16,.18,.2),new THREE.MeshStandardMaterial({color:0xb8c9d8,metalness:.65,roughness:.4}));sat.add(bus);const panelMat=new THREE.MeshStandardMaterial({color:0x245d9c,metalness:.35,roughness:.45,emissive:0x102e52});for(const side of [-1,1]){const panel=new THREE.Mesh(new THREE.BoxGeometry(.42,.025,.17),panelMat);panel.position.x=side*.29;sat.add(panel);const rail=new THREE.Mesh(new THREE.BoxGeometry(.025,.045,.19),new THREE.MeshStandardMaterial({color:0xd5e1ed,metalness:.8}));rail.position.x=side*.29;sat.add(rail);}const antenna=new THREE.Mesh(new THREE.ConeGeometry(.095,.12,20),new THREE.MeshStandardMaterial({color:0xd8dce2,metalness:.55,roughness:.4}));antenna.rotation.z=Math.PI;sat.add(antenna);sat.userData={kind:'satellite',name:sd[0],fact:'Satélite artificial representado con cuerpo, antena y paneles solares 3D. Su órbita es ilustrativa, no su posición actual.'};sat.position.set(sd[1],0,0);artificial.add(sat);bus.userData=sat.userData;satellitePickables.push(bus);sat.userData.phase=j*1.1;sat.userData.radius=sd[1];sat.userData.rate=.15+j*.035;});mesh.userData.artificial=artificial;}
