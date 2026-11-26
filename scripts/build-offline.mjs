@@ -57,6 +57,19 @@ for (const filename of textureFiles) {
   console.log(`Mapa incluido: ${filename} (${bytes.length} bytes)`);
 }
 
+// Instantánea completa de planetas confirmados del NASA Exoplanet Archive (tabla PSCompPars).
+// Se empaqueta junto al simulador para permitir búsquedas sin conexión.
+const exoQuery = "select pl_name,hostname,discoverymethod,disc_year,pl_orbper,pl_orbsmax,pl_rade,pl_bmasse,sy_dist,sy_snum from pscomppars";
+const exoUrl = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=" + encodeURIComponent(exoQuery) + "&format=json";
+const exoResponse = await fetch(exoUrl, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (NASA Exoplanet Archive snapshot)", "Accept": "application/json" } });
+if (!exoResponse.ok) throw new Error("NASA Exoplanet Archive no disponible: HTTP " + exoResponse.status);
+const exoPayload = await exoResponse.json();
+const exoRows = Array.isArray(exoPayload) ? exoPayload : (exoPayload.data || []);
+if (!exoRows.length || !exoRows[0].pl_name) throw new Error("El catálogo NASA de exoplanetas llegó vacío o con formato inesperado");
+const dataDir = resolve(outDir, "data");
+await mkdir(dataDir, { recursive: true });
+await writeFile(resolve(dataDir, "exoplanets.json"), JSON.stringify(exoRows), "utf8");
+console.log("NASA Exoplanet Archive: " + exoRows.length + " planetas confirmados empaquetados");
 await writeFile(resolve(outDir, "index.html"), output, "utf8");
 await writeFile(resolve(outDir, "app.js"), bundled, "utf8");
 await copyFile(resolve(root, "README.md"), resolve(outDir, "LEEME.txt"));
