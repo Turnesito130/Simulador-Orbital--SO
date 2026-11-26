@@ -207,7 +207,27 @@ const data=[
 const planetObjects=[];const orbitGroup=new THREE.Group();solarGroup.add(orbitGroup);const satellitePickables=[];let voyagerMarker=null;
 function orbitRadius(au){return 10+Math.log1p(au)*24}
 data.forEach((d,i)=>{const [name,au,period,size,color,type,moons,moonNames]=d;const r=orbitRadius(au);const pivot=new THREE.Group();solarGroup.add(pivot);const surfaceTexture=makePlanetTexture(name,color);
-const mesh=new THREE.Mesh(new THREE.SphereGeometry(size,96,64),new THREE.MeshStandardMaterial({map:surfaceTexture,color:color,roughness:name==='Tierra'?.86:.94,metalness:0}));
+// Geometría de alta resolución y material físico ajustado a cada tipo de mundo.
+const surfaceQuality={
+ 'Mercurio':{roughness:.96,clearcoat:0},
+ 'Venus':{roughness:.88,clearcoat:.08},
+ 'Tierra':{roughness:.72,clearcoat:.16},
+ 'Marte':{roughness:.94,clearcoat:0},
+ 'Júpiter':{roughness:.91,clearcoat:.05},
+ 'Saturno':{roughness:.92,clearcoat:.06},
+ 'Urano':{roughness:.9,clearcoat:.04},
+ 'Neptuno':{roughness:.9,clearcoat:.04},
+ 'Plutón':{roughness:.97,clearcoat:0}
+};
+const surfaceLook=surfaceQuality[name]||{roughness:.94,clearcoat:0};
+const mesh=new THREE.Mesh(
+ new THREE.SphereGeometry(size,160,112),
+ new THREE.MeshPhysicalMaterial({
+  map:surfaceTexture,color:color,roughness:surfaceLook.roughness,metalness:0,
+  clearcoat:surfaceLook.clearcoat,clearcoatRoughness:.72,
+  reflectivity:name==='Tierra'?.32:.12
+ })
+);
 mesh.rotation.z=(name==='Urano'?Math.PI/2:0);
 if(realPlanetMaps[name])loadRealTexture(realPlanetMaps[name],t=>{mesh.material.map=t;mesh.material.color.set(0xffffff);mesh.material.needsUpdate=true;});
 if(name==='Marte'){
@@ -224,11 +244,11 @@ if(name==='Marte'){
 mesh.castShadow=true;mesh.receiveShadow=true;
 if(['Tierra','Venus','Marte','Júpiter','Saturno','Urano','Neptuno'].includes(name)){
  const atmosphereColor={Tierra:0x4daaff,Venus:0xe8b77c,Marte:0xd77a55,Júpiter:0xe6bd8b,Saturno:0xe7d1a4,Urano:0x83dce5,Neptuno:0x477bff}[name];
- const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(size*1.075,64,48),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.FrontSide,uniforms:{glowColor:{value:new THREE.Color(atmosphereColor)},glowPower:{value:name==='Tierra'?3.2:2.6},glowOpacity:{value:name==='Tierra'?.48:.25}},vertexShader:`varying vec3 vNormalW;varying vec3 vViewW;void main(){vec4 world=modelMatrix*vec4(position,1.0);vNormalW=normalize(mat3(modelMatrix)*normal);vViewW=normalize(cameraPosition-world.xyz);gl_Position=projectionMatrix*viewMatrix*world;}`,fragmentShader:`uniform vec3 glowColor;uniform float glowPower;uniform float glowOpacity;varying vec3 vNormalW;varying vec3 vViewW;void main(){float rim=pow(1.0-max(dot(normalize(vNormalW),normalize(vViewW)),0.0),glowPower);gl_FragColor=vec4(glowColor,rim*glowOpacity);}`}));
+ const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(size*1.075,112,80),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.FrontSide,uniforms:{glowColor:{value:new THREE.Color(atmosphereColor)},glowPower:{value:name==='Tierra'?3.2:2.6},glowOpacity:{value:name==='Tierra'?.48:.25}},vertexShader:`varying vec3 vNormalW;varying vec3 vViewW;void main(){vec4 world=modelMatrix*vec4(position,1.0);vNormalW=normalize(mat3(modelMatrix)*normal);vViewW=normalize(cameraPosition-world.xyz);gl_Position=projectionMatrix*viewMatrix*world;}`,fragmentShader:`uniform vec3 glowColor;uniform float glowPower;uniform float glowOpacity;varying vec3 vNormalW;varying vec3 vViewW;void main(){float rim=pow(1.0-max(dot(normalize(vNormalW),normalize(vViewW)),0.0),glowPower);gl_FragColor=vec4(glowColor,rim*glowOpacity);}`}));
  mesh.add(atmosphere);
 }
 if(name==='Tierra'){
- const clouds=new THREE.Mesh(new THREE.SphereGeometry(size*1.014,96,64),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.48,roughness:1,depthWrite:false}));
+ const clouds=new THREE.Mesh(new THREE.SphereGeometry(size*1.014,144,96),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.48,roughness:1,depthWrite:false}));
  loadRealTexture('2k_earth_clouds.jpg',t=>{clouds.material.alphaMap=t;clouds.material.needsUpdate=true;});
  mesh.add(clouds);mesh.userData.clouds=clouds;
 }mesh.position.x=r;pivot.add(mesh);const ringPts=[],ecc=d[8]||0,inc=(d[9]||0)*Math.PI/180;for(let k=0;k<=256;k++){const M=k/256*Math.PI*2,E=solveKepler(M,ecc);ringPts.push(new THREE.Vector3(r*(Math.cos(E)-ecc),0,r*Math.sqrt(1-ecc*ecc)*Math.sin(E)))}const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),new THREE.LineBasicMaterial({color:0x42617f,transparent:true,opacity:.4}));line.rotation.x=inc;orbitGroup.add(line);let ring=null;if(name==='Saturno'){ring=new THREE.Mesh(new THREE.RingGeometry(size*1.22,size*2.72,256),new THREE.MeshStandardMaterial({map:null,color:0xd9c69e,side:THREE.DoubleSide,transparent:true,opacity:.97,roughness:1,metalness:.04,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.rotation.z=THREE.MathUtils.degToRad(26.7);ring.position.x=r;pivot.add(ring);loadRealTexture('2k_saturn_ring_alpha.png',t=>{ring.material.alphaMap=t;ring.material.needsUpdate=true;});const ringGlow=new THREE.Mesh(new THREE.RingGeometry(size*2.74,size*2.9,192),new THREE.MeshBasicMaterial({color:0xe4d1a8,side:THREE.DoubleSide,transparent:true,opacity:.12,depthWrite:false}));ringGlow.rotation.x=Math.PI/2;ringGlow.rotation.z=THREE.MathUtils.degToRad(26.7);ringGlow.position.x=r;pivot.add(ringGlow)}
