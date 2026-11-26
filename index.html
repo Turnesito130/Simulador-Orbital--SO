@@ -237,9 +237,10 @@ const bar=new THREE.Mesh(new THREE.BoxGeometry(92,3,17),new THREE.MeshBasicMater
 const diskPos=[],diskCol=[];
 for(let i=0;i<90000;i++){
  const arm=Math.floor(Math.random()*4),t=Math.random(),r=18+t*255;
- const angle=arm*Math.PI/2 + Math.log(Math.max(1,r/18))*1.75 + THREE.MathUtils.randFloatSpread(.38);
- const spread=THREE.MathUtils.randFloatSpread(10)*(0.3+t);
- diskPos.push(Math.cos(angle)*r+THREE.MathUtils.randFloatSpread(8),THREE.MathUtils.randFloatSpread(2.2)*(1-t*.45),Math.sin(angle)*r+THREE.MathUtils.randFloatSpread(8));
+ const armOffsets=[0,1.58,3.10,4.72],pitch=1.75+arm*.035;
+ const angle=armOffsets[arm] + Math.log(Math.max(1,r/18))*pitch + THREE.MathUtils.randFloatSpread(.25+.18*t);
+ const warp=Math.pow(t,2)*Math.sin(angle*2+.6)*3.2;
+ diskPos.push(Math.cos(angle)*r+THREE.MathUtils.randFloatSpread(7),warp+THREE.MathUtils.randFloatSpread(2.4)*(1-t*.45),Math.sin(angle)*r+THREE.MathUtils.randFloatSpread(7));
  const warm=Math.random();diskCol.push(warm>.75?1:.58+Math.random()*.3,warm>.75?.72:.68+Math.random()*.25,warm>.75?.43:.82+Math.random()*.18);
 }
 const diskGeo=new THREE.BufferGeometry();diskGeo.setAttribute('position',new THREE.Float32BufferAttribute(diskPos,3));diskGeo.setAttribute('color',new THREE.Float32BufferAttribute(diskCol,3));
@@ -249,7 +250,7 @@ const nebulaCanvas=document.createElement('canvas');nebulaCanvas.width=nebulaCan
 // Polvo galáctico en carriles finos siguiendo los brazos: recurso gráfico esquemático,
 // no una reconstrucción observacional ni una distribución estelar medida.
 for(let arm=0;arm<4;arm++){
- const dust=[];for(let j=0;j<5200;j++){const t=Math.random(),r=29+t*238,a=arm*Math.PI/2+Math.log(r/25)*1.75+THREE.MathUtils.randFloatSpread(.075);dust.push(Math.cos(a)*r,THREE.MathUtils.randFloatSpread(.55),Math.sin(a)*r)}
+ const dust=[];const armOffsets=[0,1.58,3.10,4.72];for(let j=0;j<5200;j++){const t=Math.random(),r=29+t*238,a=armOffsets[arm]+Math.log(r/25)*(1.75+arm*.035)+THREE.MathUtils.randFloatSpread(.065),warp=Math.pow(t,2)*Math.sin(a*2+.6)*3.2;dust.push(Math.cos(a)*r,warp+THREE.MathUtils.randFloatSpread(.42),Math.sin(a)*r)}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(dust,3));
  galaxyGroup.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x9bb6d4,size:.62,transparent:true,opacity:.16,depthWrite:false})));
 }
@@ -453,15 +454,15 @@ const exoEscape=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt
 function formatExo(v,d=3){return Number.isFinite(Number(v))?Number(v).toLocaleString('es-ES',{maximumFractionDigits:d}):'No publicado';}
 function showExoDetail(sys){
  exoDetail.style.display='block';
- const rows=sys.planets.map(p=>'<tr><td>'+exoEscape(p.name)+'</td><td>'+formatExo(p.period,6)+' días</td><td>'+formatExo(p.axis,5)+' UA</td><td>'+formatExo(p.radius,3)+' R⊕</td><td>'+formatExo(p.mass,3)+' M⊕</td></tr>').join('');
+ const rows=sys.planets.map(p=>Array.isArray(p)?{name:p[0],period:p[1]}:p).map(p=>'<tr><td>'+exoEscape(p.name)+'</td><td>'+formatExo(p.period,6)+' días</td><td>'+formatExo(p.axis,5)+' UA</td><td>'+formatExo(p.radius,3)+' R⊕</td><td>'+formatExo(p.mass,3)+' M⊕</td></tr>').join('');
  exoDetail.innerHTML='<h3>'+exoEscape(sys.name)+' · '+exoEscape(sys.galaxy)+'</h3><p><b>Distancia:</b> '+exoEscape(sys.distance)+'<br><b>Estrella anfitriona:</b> '+exoEscape(sys.star)+'<br><b>Planetas confirmados:</b> '+sys.planetCount+'<br><b>Estrellas en el sistema:</b> '+exoEscape(sys.stars??'No publicado')+'<br><b>Estado:</b> Confirmado en NASA Exoplanet Archive</p><p>'+exoEscape(sys.fact??'Parámetros compilados por NASA Exoplanet Archive. Los valores ausentes no se estiman.')+'</p><h4>Planetas del sistema</h4><div class="exo-table-wrap"><table><thead><tr><th>Planeta</th><th>Periodo orbital</th><th>Semieje mayor</th><th>Radio</th><th>Masa</th></tr></thead><tbody>'+rows+'</tbody></table></div><p><b>Importante:</b> las cifras son parámetros publicados, no posiciones actuales ni órbitas integradas. No se asigna una galaxia externa sin identificación observacional explícita. Los planetas de este catálogo no se dibujan a escala.</p><a href="'+exoEscape(sys.url)+'" target="_blank" rel="noopener">Consultar sistema en NASA Exoplanet Archive ↗</a>';
 }
 function renderExo(){
  const q=document.querySelector('#exoSearch').value.trim().toLowerCase(),g=document.querySelector('#exoGalaxy').value,status=document.querySelector('#exoStatus').value;
- const list=exoCatalogSystems.filter(x=>(!g||x.galaxy===g)&&(!status||x.status===status)&&[x.name,x.galaxy,x.star,x.fact,...x.planets.map(p=>p.name)].join(' ').toLowerCase().includes(q));
+ const list=exoCatalogSystems.filter(x=>(!g||x.galaxy===g)&&(!status||x.status===status)&&[x.name,x.galaxy,x.star,x.fact,...x.planets.map(p=>Array.isArray(p)?p[0]:p.name)].join(' ').toLowerCase().includes(q));
  exoGrid.innerHTML='';
  const shown=list.slice(0,exoVisibleLimit);
- shown.forEach(sys=>{const card=document.createElement('article');card.className='exo-card';card.tabIndex=0;card.setAttribute('role','button');card.innerHTML='<h3>'+exoEscape(sys.name)+'</h3><p>'+exoEscape(sys.galaxy)+' · '+exoEscape(sys.distance)+'</p><p><b>'+sys.planetCount+' planetas confirmados</b> · '+exoEscape(sys.star)+'</p><p>'+sys.planets.slice(0,8).map(p=>exoEscape(p.name)).join(' · ')+(sys.planets.length>8?' · …':'')+'</p>';const open=()=>showExoDetail(sys);card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});exoGrid.appendChild(card)});
+ shown.forEach(sys=>{const card=document.createElement('article');card.className='exo-card';card.tabIndex=0;card.setAttribute('role','button');card.innerHTML='<h3>'+exoEscape(sys.name)+'</h3><p>'+exoEscape(sys.galaxy)+' · '+exoEscape(sys.distance)+'</p><p><b>'+sys.planetCount+' planetas confirmados</b> · '+exoEscape(sys.star)+'</p><p>'+sys.planets.slice(0,8).map(p=>exoEscape(Array.isArray(p)?p[0]:p.name)).join(' · ')+(sys.planets.length>8?' · …':'')+'</p>';const open=()=>showExoDetail(sys);card.addEventListener('click',open);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});exoGrid.appendChild(card)});
  const info=document.createElement('p');info.className='exo-note';info.textContent='Mostrando '+shown.length+' de '+list.length+' sistemas coincidentes · '+(exoCatalogLoaded?exoCatalogTotal+' planetas confirmados cargados desde NASA':'catálogo local reducido; intentando cargar NASA');exoGrid.appendChild(info);
  if(list.length>shown.length){const more=document.createElement('button');more.textContent='Mostrar 100 sistemas más';more.addEventListener('click',()=>{exoVisibleLimit+=100;renderExo()});exoGrid.appendChild(more)}
  if(!list.length)exoGrid.textContent='No hay sistemas en este catálogo que coincidan con la búsqueda.';
@@ -469,9 +470,10 @@ function renderExo(){
 async function loadExoCatalog(){
  if(exoCatalogLoaded)return;
  try{
-  let response=await fetch('./data/exoplanets.json');
-  if(!response.ok)throw new Error('Catálogo local no disponible');
-  let payload=await response.json(),rows=Array.isArray(payload)?payload:(payload.data||[]);
+  const embedded=document.querySelector('#exoCatalogData');
+  let rows=[];
+  if(embedded){const payload=JSON.parse(embedded.textContent);rows=Array.isArray(payload)?payload:(payload.data||[])}
+  else {let response=await fetch('./data/exoplanets.json');if(!response.ok)throw new Error('Catálogo local no disponible');let payload=await response.json();rows=Array.isArray(payload)?payload:(payload.data||[])}
   if(!rows.length)throw new Error('Catálogo vacío');
   const groups=new Map();
   for(const p of rows){
