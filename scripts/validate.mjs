@@ -35,6 +35,8 @@ assert.match(main[2], /material\.dispose\(\)/, 'Al cambiar de sistema deben libe
 assert.match(main[2], /stellarIndex=\(\(index%stellarSystemData\.length\)\+stellarSystemData\.length\)%stellarSystemData\.length/, 'La navegación circular debe admitir índices negativos y positivos');
 assert.match(main[2], /mode==='stellar'&&\(k==='arrowleft'\|\|k==='arrowright'\)/, 'Las flechas deben permitir cambiar de sistema directamente');
 assert.match(main[2], /stellarStarMesh&&raycaster\.intersectObject\(stellarStarMesh,false\)/, 'La estrella debe poder seleccionarse para recuperar su ficha');
+assert.match(main[2], /mode==='stellar'\?\[\.\.\.\(stellarStarMesh/, 'El cursor debe detectar estrellas y planetas en el modo estelar');
+assert.match(main[2], /d\.kind==='stellar-planet'\?'Exoplaneta del sistema/, 'La tarjeta flotante debe explicar los exoplanetas');
 assert.match(main[2], /mode==='stellar'&&k==='escape'/, 'Escape debe salir del recorrido estelar');
 const systemsBlock = main[2].match(/const stellarSystemData=\[([\s\S]*?)\n\];/);
 assert.ok(systemsBlock, 'Debe existir el catálogo de sistemas estelares');
