@@ -103,3 +103,16 @@ No se dibujan exolunas ni cinturones como si estuvieran confirmados: se informa 
 Fuentes de consulta: [NASA Exoplanet Archive — Próxima Centauri](https://exoplanetarchive.ipac.caltech.edu/overview/proxima%20centauri), [NASA Exoplanet Archive — Barnard's Star](https://exoplanetarchive.ipac.caltech.edu/overview/barnard%20star), [NASA Exoplanet Archive — Ross 128 b](https://exoplanetarchive.ipac.caltech.edu/overview/ross%20128%20b).
 
 Parámetros estelares de Barnard mostrados en el visor: temperatura efectiva de referencia 3195 K, masa 0,162 M☉ y radio 0,185 R☉ (NASA Exoplanet Archive; valores de la solución citada en su ficha).
+
+
+### Ampliación: tres sistemas cercanos adicionales
+
+Se amplía el recorrido 3D de sistemas estelares de tres a seis entradas. Se incorporan GJ 1061, YZ Ceti y la estrella de Teegarden, con planetas confirmados y parámetros publicados:
+
+- **GJ 1061** (≈11,98 años luz): b, c y d. Periodos 3,2073; 6,6821 y 13,066 días. Semiejes 0,0210; 0,0342 y 0,054 UA. Las masas mostradas son las mínimas de las soluciones de velocidad radial; no se muestra temperatura de equilibrio porque no se ha integrado un valor de referencia verificable para esta ficha.
+- **YZ Ceti** (≈12,10 años luz): b, c y d. Se usan las soluciones de Stock et al. (2020), que resuelven la ambigüedad de alias diarios señalada en trabajos anteriores. Periodos 2,02087; 3,05989 y 4,65626 días; semiejes 0,01634; 0,02156 y 0,02851 UA.
+- **Estrella de Teegarden** (≈12,49 años luz): b, c y d. El planeta d se añadió como confirmado en Dreizler et al. (2024). Periodos 4,90634; 11,416 y 26,13 días; semiejes 0,0259; 0,0455 y 0,0791 UA.
+
+No se han añadido lunas ni cinturones hipotéticos. Las masas por velocidad radial son mínimas (M·sen i), las temperaturas de equilibrio son estimaciones y no temperaturas superficiales, y las fases/orientaciones del visor son esquemáticas. Los tamaños y distancias visuales no están a escala.
+
+Fuentes NASA Exoplanet Archive: [GJ 1061](https://exoplanetarchive.ipac.caltech.edu/overview/GJ-1061), [YZ Ceti](https://exoplanetarchive.ipac.caltech.edu/overview/YZ%20Cet), [Estrella de Teegarden](https://exoplanetarchive.ipac.caltech.edu/overview/Teegardens%20Star).
