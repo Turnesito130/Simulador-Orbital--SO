@@ -46,7 +46,7 @@ const textureFiles = [
 const textureDir = resolve(outDir, "assets/textures");
 await mkdir(textureDir, { recursive: true });
 for (const filename of textureFiles) {
-  const url = `https://play.solarsystemscope.com/textures/download/${filename}`;
+  const url = `https://spaceengine.solarsystemscope.com/textures/download/${filename}`;
   const response = await fetch(url, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (planetary-map-packaging)", "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" } });
   if (!response.ok) throw new Error(`No se pudo descargar el mapa ${filename}: HTTP ${response.status}`);
   const bytes = Buffer.from(await response.arrayBuffer());
