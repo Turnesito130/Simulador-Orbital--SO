@@ -116,3 +116,16 @@ Se amplía el recorrido 3D de sistemas estelares de tres a seis entradas. Se inc
 No se han añadido lunas ni cinturones hipotéticos. Las masas por velocidad radial son mínimas (M·sen i), las temperaturas de equilibrio son estimaciones y no temperaturas superficiales, y las fases/orientaciones del visor son esquemáticas. Los tamaños y distancias visuales no están a escala.
 
 Fuentes NASA Exoplanet Archive: [GJ 1061](https://exoplanetarchive.ipac.caltech.edu/overview/GJ-1061), [YZ Ceti](https://exoplanetarchive.ipac.caltech.edu/overview/YZ%20Cet), [Estrella de Teegarden](https://exoplanetarchive.ipac.caltech.edu/overview/Teegardens%20Star).
+
+
+### Ampliación: sistemas cercanos 7–9
+
+Se incorporan tres sistemas adicionales al recorrido continuo, ordenados aproximadamente por distancia al Sol:
+
+- **Wolf 1061** (≈14,05 años luz): b, c y d confirmados. Se muestran los parámetros de Astudillo-Defru et al. (2017): periodos 4,8869; 17,8719 y 217,21 días; semiejes 0,0375; 0,0890 y 0,470 UA; masas mínimas 1,91; 3,41 y 7,70 M⊕. Para Wolf 1061 d existen soluciones históricas discrepantes; se identifica explícitamente la solución adoptada.
+- **GJ 1002** (≈15,8 años luz): b y c confirmados. Periodos 10,3465 y 21,202 días; semiejes 0,0457 y 0,0738 UA; masas mínimas 1,08 y 1,36 M⊕. Temperaturas de equilibrio 231 y 182 K, calculadas con albedo de Bond supuesto de 0,3; no son temperaturas superficiales.
+- **GJ 273 (Luyten)** (≈19,31 años luz): c y b confirmados. Periodos 4,7234 y 18,6498 días; semiejes 0,036467 y 0,091101 UA; masas mínimas 1,18 y 2,89 M⊕.
+
+No se han añadido lunas ni cinturones hipotéticos. En los casos sin temperatura de equilibrio verificada, el visor indica que no está publicada en esta ficha. Las masas por velocidad radial son mínimas (M·sen i). Los tamaños, distancias visuales y fases no deben interpretarse como una reconstrucción a escala ni como posiciones actuales exactas.
+
+Fuentes NASA Exoplanet Archive: [Wolf 1061](https://exoplanetarchive.ipac.caltech.edu/overview/Wolf-1061), [GJ 1002](https://exoplanetarchive.ipac.caltech.edu/overview/GJ_1002), [GJ 273](https://exoplanetarchive.ipac.caltech.edu/overview/GJ%20273).
