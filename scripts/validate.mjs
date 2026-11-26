@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 assert.match(html, /<!doctype html/i, 'index.html debe declarar HTML5');
 
-const ids = [...html.matchAll(/\\bid=["']([^"']+)["']/g)].map(m => m[1]);
+const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m => m[1]);
 const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
 assert.deepEqual([...new Set(duplicates)], [], 'No debe haber IDs HTML duplicados');
 
@@ -23,13 +23,13 @@ for (const id of requiredIds) {
   assert.ok(ids.includes(id), `Falta el elemento obligatorio #${id}`);
 }
 
-const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
+const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
 const main = scripts.find(m => /type=["']module["']/.test(m[1]));
 assert.ok(main, 'Debe existir el módulo JavaScript principal');
-assert.match(main[2], /function setMode\\(m,preserveView=false\\)/, 'Debe existir el cambio de vista conservando cámara');
-assert.match(main[2], /setMode\\('galaxy',true\\)/, 'El zoom hacia la galaxia debe conservar el encuadre');
-assert.match(main[2], /setMode\\('solar',true\\)/, 'El regreso al Sistema Solar debe conservar el encuadre');
-assert.match(main[2], /stellarSystemData\\.forEach\\(\\(item,i\\)/, 'El selector debe poblarse desde los sistemas definidos');
+assert.match(main[2], /function setMode\(m,preserveView=false\)/, 'Debe existir el cambio de vista conservando cámara');
+assert.match(main[2], /setMode\('galaxy',true\)/, 'El zoom hacia la galaxia debe conservar el encuadre');
+assert.match(main[2], /setMode\('solar',true\)/, 'El regreso al Sistema Solar debe conservar el encuadre');
+assert.match(main[2], /stellarSystemData\.forEach\(\(item,i\)/, 'El selector debe poblarse desde los sistemas definidos');
 
 const tempDir = mkdtempSync(join(tmpdir(), 'so-check-'));
 try {
