@@ -38,7 +38,7 @@ assert.match(main[2], /stellarStarMesh&&raycaster\.intersectObject\(stellarStarM
 assert.match(main[2], /mode==='stellar'&&k==='escape'/, 'Escape debe salir del recorrido estelar');
 const systemsBlock = main[2].match(/const stellarSystemData=\[([\s\S]*?)\n\];/);
 assert.ok(systemsBlock, 'Debe existir el catálogo de sistemas estelares');
-assert.equal((systemsBlock[1].match(/^\s*\{name:/gm)||[]).length, 9, 'El recorrido debe contener exactamente nueve sistemas estelares');
+assert.equal((systemsBlock[1].match(/^ \{name:/gm)||[]).length, 9, 'El recorrido debe contener exactamente nueve sistemas estelares');
 
 
 const tempDir = mkdtempSync(join(tmpdir(), 'so-check-'));
