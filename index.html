@@ -114,8 +114,9 @@ for(let i=0;i<16500;i++){
 starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));
 starGeo.setAttribute('color',new THREE.Float32BufferAttribute(starCols,3));
 scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({vertexColors:true,size:2.15,sizeAttenuation:true,transparent:true,opacity:.96,depthWrite:false})));
-const solarGroup=new THREE.Group();scene.add(solarGroup);
-const sun=new THREE.Mesh(new THREE.SphereGeometry(.5,96,64),new THREE.MeshBasicMaterial({color:0xffc45a}));
+// Sistema Solar: el Sol es la estrella central propia de esta escena; Sagitario A* no pertenece a este grupo.
+const solarGroup=new THREE.Group();solarGroup.position.set(0,0,0);scene.add(solarGroup);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(.5,96,64),new THREE.MeshBasicMaterial({color:0xffc45a}));sun.position.set(0,0,0);sun.userData={name:'Sol',kind:'solar-star'};
 solarGroup.add(sun);
 const sunCore=new THREE.Mesh(new THREE.SphereGeometry(.505,96,64),new THREE.MeshBasicMaterial({color:0xffe6ad,transparent:true,opacity:.28,blending:THREE.AdditiveBlending,depthWrite:false}));solarGroup.add(sunCore);
 const sunHaloTexCanvas=document.createElement('canvas');sunHaloTexCanvas.width=sunHaloTexCanvas.height=256;const shx=sunHaloTexCanvas.getContext('2d');const shg=shx.createRadialGradient(128,128,8,128,128,128);shg.addColorStop(0,'rgba(255,246,205,.8)');shg.addColorStop(.18,'rgba(255,183,78,.42)');shg.addColorStop(.48,'rgba(255,113,30,.12)');shg.addColorStop(1,'rgba(255,80,20,0)');shx.fillStyle=shg;shx.fillRect(0,0,256,256);const sunHaloTex=new THREE.CanvasTexture(sunHaloTexCanvas);const sunHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:sunHaloTex,color:0xffd18a,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));sunHalo.scale.set(3.2,3.2,1);solarGroup.add(sunHalo);
@@ -422,8 +423,9 @@ const nearbySystemMarkers=[];const nearbyMarkerLayout=[[-11,0,7],[8,0,13],[17,0,
 nearbyMarkerLayout.forEach((offset,index)=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(1.05,20,16),new THREE.MeshBasicMaterial({color:0x8bd7ff}));marker.position.copy(sunMarker.position).add(new THREE.Vector3(...offset));marker.userData={stellarSystemIndex:index,name:['Próxima Centauri','Estrella de Barnard','Ross 128','GJ 1061','YZ Ceti','Estrella de Teegarden','Wolf 1061','GJ 1002','GJ 273'][index],kind:'nearby-system'};galaxyGroup.add(marker);nearbySystemMarkers.push(marker);const glow=new THREE.Mesh(new THREE.SphereGeometry(1.8,16,12),new THREE.MeshBasicMaterial({color:0x55baff,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false}));marker.add(glow);});
 const localSystemMarkers=[];nearbyMarkerLayout.forEach((offset,index)=>{const marker=new THREE.Mesh(new THREE.SphereGeometry(1.45,24,18),new THREE.MeshBasicMaterial({color:0x8bd7ff}));marker.position.set(...offset);marker.userData={stellarSystemIndex:index,name:['Próxima Centauri','Estrella de Barnard','Ross 128','GJ 1061','YZ Ceti','Estrella de Teegarden','Wolf 1061','GJ 1002','GJ 273'][index],kind:'nearby-system'};localBubbleGroup.add(marker);localSystemMarkers.push(marker);const glow=new THREE.Mesh(new THREE.SphereGeometry(2.5,16,12),new THREE.MeshBasicMaterial({color:0x55baff,transparent:true,opacity:.2,blending:THREE.AdditiveBlending,depthWrite:false}));marker.add(glow);});
 // Sagitario A*: representación visual estilizada, no a escala ni un trazado relativista exacto.
-const blackHoleGroup=new THREE.Group();scene.add(blackHoleGroup);
-const blackHole=new THREE.Mesh(new THREE.SphereGeometry(3.15,96,64),new THREE.MeshBasicMaterial({color:0x000000}));
+// Vía Láctea: Sagitario A* ocupa explícitamente el centro galáctico (origen de galaxyGroup), separado del Sol.
+const blackHoleGroup=new THREE.Group();blackHoleGroup.position.set(0,0,0);scene.add(blackHoleGroup);
+const blackHole=new THREE.Mesh(new THREE.SphereGeometry(3.15,96,64),new THREE.MeshBasicMaterial({color:0x000000}));blackHole.position.set(0,0,0);blackHole.userData={name:'Sagitario A*',kind:'black-hole'};
 blackHole.renderOrder=30;blackHole.material.depthWrite=false;blackHole.material.depthTest=false;blackHoleGroup.add(blackHole);
 // Disco de acreción: textura procedural con filamentos turbulentos y gradiente térmico.
 const diskCanvas=document.createElement('canvas');diskCanvas.width=1024;diskCanvas.height=256;
