@@ -49,7 +49,7 @@ button,select,input{font:inherit;color:inherit}button,select{background:#10243c;
 <body>
 <div id="scene"></div><div id="stellarNav" aria-label="Navegación entre sistemas estelares">
  <button id="stellarPrev" title="Viajar al sistema anterior">← Anterior</button>
- <div><strong id="stellarName">Próxima Centauri</strong><small id="stellarCounter">Sistema 1 de 6 · Vía Láctea</small></div>
+ <div><strong id="stellarName">Próxima Centauri</strong><small id="stellarCounter">Sistema 1 de 9 · Vía Láctea</small></div>
  <button id="stellarNext" title="Viajar al sistema siguiente">Siguiente →</button>
  <button id="stellarExit" title="Volver a la vista anterior">Salir</button>
 </div><div id="galaxyLegend"><strong>Qué estás viendo en la Vía Láctea</strong><div class="legend-title">Estrellas (puntos luminosos)</div>Millones de estrellas representadas de forma estadística; no son estrellas individuales identificadas ni sus posiciones reales.</div><div id="hoverCard"></div><div id="moveHelp">Mover: W A S D · subir/bajar: Q / E · R: orbitar el cuerpo bajo el ratón · arrastrar para mirar · rueda/pellizco: zoom</div>
@@ -432,6 +432,19 @@ const stellarSystemData=[
   {name:'Teegarden b',period:4.90634,axis:0.0259,e:0.03,mass:1.16,temp:277,color:0x9e8d7e,kind:'Planeta de masa terrestre'},
   {name:'Teegarden c',period:11.416,axis:0.0455,e:0.04,mass:1.05,temp:209,color:0x819ba3,kind:'Planeta de masa terrestre'},
   {name:'Teegarden d',period:26.13,axis:0.0791,e:0.07,mass:0.82,temp:159,color:0xb39c82,kind:'Planeta de masa subterrestre'}
+ ]},
+ {name:'Wolf 1061',distance:'14,05 años luz',starType:'Enana roja M3.5 V',starTemp:3342,starMass:0.294,starRadius:0.307,starColor:0xff7954,source:'https://exoplanetarchive.ipac.caltech.edu/overview/Wolf-1061',fact:'Tres planetas confirmados. Se usan los parámetros de Astudillo-Defru et al. (2017); para Wolf 1061 d existen soluciones históricas discrepantes, por lo que se adopta la solución de 217,21 días de ese trabajo. Las masas son mínimas (M·sen i).',planets:[
+  {name:'Wolf 1061 b',period:4.8869,axis:0.0375,e:0.15,mass:1.91,temp:null,color:0x9e8d7e,kind:'Planeta rocoso probable'},
+  {name:'Wolf 1061 c',period:17.8719,axis:0.0890,e:0.11,mass:3.41,temp:null,color:0x8199a1,kind:'Super-Tierra'},
+  {name:'Wolf 1061 d',period:217.21,axis:0.470,e:0.55,mass:7.70,temp:null,color:0xb49b82,kind:'Super-Tierra'}
+ ]},
+ {name:'GJ 1002',distance:'15,8 años luz',starType:'Enana roja M5.5 V',starTemp:3024,starMass:0.120,starRadius:0.137,starColor:0xff634b,source:'https://exoplanetarchive.ipac.caltech.edu/overview/GJ_1002',fact:'Dos planetas confirmados por velocidad radial. Los datos de temperatura de equilibrio proceden de Suárez Mascareño et al. (2023), con albedo de Bond supuesto de 0,3; no son temperaturas superficiales.',planets:[
+  {name:'GJ 1002 b',period:10.3465,axis:0.0457,e:0,mass:1.08,temp:231,color:0x9b8c80,kind:'Planeta de masa terrestre'},
+  {name:'GJ 1002 c',period:21.202,axis:0.0738,e:0,mass:1.36,temp:182,color:0x829aa3,kind:'Planeta de masa terrestre'}
+ ]},
+ {name:'GJ 273 (Luyten)',distance:'19,31 años luz',starType:'Enana roja M3.5 V',starTemp:3382,starMass:0.295,starRadius:0.316,starColor:0xff8058,source:'https://exoplanetarchive.ipac.caltech.edu/overview/GJ%20273',fact:'Dos planetas confirmados por velocidad radial. Las masas publicadas son mínimas (M·sen i); se muestran los parámetros de Astudillo-Defru et al. (2017).',planets:[
+  {name:'GJ 273 c',period:4.7234,axis:0.036467,e:0.17,mass:1.18,temp:null,color:0xa18e7c,kind:'Planeta de masa terrestre'},
+  {name:'GJ 273 b',period:18.6498,axis:0.091101,e:0.10,mass:2.89,temp:null,color:0x829ba4,kind:'Super-Tierra'}
  ]}
 ];
 let stellarIndex=0,stellarOrbitObjects=[],stellarTravel=null,stellarPreviousMode='solar';
