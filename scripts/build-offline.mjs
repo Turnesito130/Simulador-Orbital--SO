@@ -59,7 +59,7 @@ for (const filename of textureFiles) {
 
 // Instantánea completa de planetas confirmados del NASA Exoplanet Archive (tabla PSCompPars).
 // Se empaqueta junto al simulador para permitir búsquedas sin conexión.
-const exoQuery = "select pl_name,hostname,discoverymethod,disc_year,pl_orbper,pl_orbsmax,pl_rade,pl_bmasse,sy_dist,sy_snum from pscomppars";
+const exoQuery = "select pl_name,hostname,discoverymethod,disc_year,pl_orbper,pl_orbsmax,pl_orbeccen,pl_orbincl,pl_rade,pl_bmasse,pl_eqt,pl_insol,sy_dist,ra,dec,sy_snum,sy_pnum,sy_mnum,st_teff,st_rad,st_mass,st_spectype from pscomppars";
 const exoUrl = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=" + encodeURIComponent(exoQuery) + "&format=json";
 const exoResponse = await fetch(exoUrl, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (NASA Exoplanet Archive snapshot)", "Accept": "application/json" } });
 if (!exoResponse.ok) throw new Error("NASA Exoplanet Archive no disponible: HTTP " + exoResponse.status);
