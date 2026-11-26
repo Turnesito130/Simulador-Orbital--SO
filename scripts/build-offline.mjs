@@ -52,12 +52,18 @@ const nasaTextureSources = {
   "ldem_3_8bit.jpg": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_3_8bit.jpg"
 };
 for (const [filename, url] of Object.entries(nasaTextureSources)) {
-  const response = await fetch(url, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (NASA planetary maps)", "Accept": "image/*,*/*;q=0.8" } });
-  if (!response.ok) throw new Error(`No se pudo descargar el mapa NASA ${filename}: HTTP ${response.status}`);
-  const bytes = Buffer.from(await response.arrayBuffer());
-  if (!response.headers.get("content-type")?.startsWith("image/") || bytes.length < 1000) throw new Error(`Respuesta inválida para ${filename}: tipo=${response.headers.get("content-type")}, bytes=${bytes.length}`);
-  await writeFile(resolve(textureDir, filename), bytes);
-  console.log(`Mapa NASA incluido: ${filename} (${bytes.length} bytes)`);
+  try {
+    const response = await fetch(url, { headers: { "User-Agent": "SimuladorOrbitalSO/1.0 (NASA planetary maps)", "Accept": "image/*,*/*;q=0.8" } });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (!response.headers.get("content-type")?.startsWith("image/") || bytes.length < 1000) throw new Error(`respuesta no válida: tipo=${response.headers.get("content-type")}, bytes=${bytes.length}`);
+    await writeFile(resolve(textureDir, filename), bytes);
+    console.log(`Mapa NASA incluido: ${filename} (${bytes.length} bytes)`);
+  } catch (error) {
+    // Estos mapas mejoran el detalle, pero no son necesarios para arrancar:
+    // el simulador conserva sus superficies procedurales si el servidor NASA bloquea la descarga.
+    console.warn(`Mapa opcional no incluido (${filename}): ${error.message}. Se usará el recurso de respaldo sin conexión.`);
+  }
 }
 for (const filename of textureFiles) {
   // Espejo versionado de los mapas Solar System Scope (CC BY 4.0); se fija el commit para builds reproducibles.
